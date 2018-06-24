@@ -4,6 +4,9 @@ let response;
 
 
 exports.lambda_handler = async (event, context, callback) => {
+  console.log(JSON.stringify(event, null, 2));
+
+
   try {
     const ret = await axios(url);
     response = {

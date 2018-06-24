@@ -7,6 +7,7 @@ TODO links to STAC API
 ## TODO
 
 * Finish writing the README.
+* Update search/package.json
 * Linting
 * Tests
   - Add tests validating a granule converts into correct GeoJSON
@@ -30,7 +31,10 @@ https://app.swaggerhub.com/apis/cholmesgeo/STAC-standalone/0.4.1#/
       - Returns GeoJSON with extra stuff
     - POST
     -
-*
+* STAC API
+  - Implement the basic one
+  - Implement WFS extension
+    - This makes sense considering the collection API
 *
 
 ## Development

@@ -20,20 +20,21 @@ Globals:
 Resources:
 
   SearchFunction:
-    Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+    Type: AWS::Serverless::Function
     Properties:
       CodeUri: search/
       Handler: app.lambda_handler
       Events:
-        Search:
-          Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
+        SearchGet:
+          Type: Api
           Properties:
             Path: /search
             Method: get
-
-# TODO how do we implement POST as well?
-
-
+        SearchPost:
+          Type: Api
+          Properties:
+            Path: /search
+            Method: post
 
 Outputs:
 
