@@ -1,0 +1,50 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  search
+
+  An implementation of the STAC Catalog API on top of the CMR.
+
+Parameters:
+  StackNamePrefix:
+    Type: String
+
+Globals:
+  Function:
+    Runtime: nodejs8.10
+    Timeout: 30
+    Environment:
+      Variables:
+        STACK_PREFIX: !Sub '${StackNamePrefix}'
+
+Resources:
+
+  SearchFunction:
+    Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+    Properties:
+      CodeUri: search/
+      Handler: app.lambda_handler
+      Events:
+        Search:
+          Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
+          Properties:
+            Path: /search
+            Method: get
+
+# TODO how do we implement POST as well?
+
+
+
+Outputs:
+
+  SearchApi:
+    Description: "API Gateway endpoint URL for Prod stage for Search function"
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/search/"
+
+  SearchFunction:
+    Description: "Search Lambda Function ARN"
+    Value: !GetAtt SearchFunction.Arn
+
+  SearchFunctionIamRole:
+    Description: "Implicit IAM Role created for Search function"
+    Value: !GetAtt SearchFunctionRole.Arn
