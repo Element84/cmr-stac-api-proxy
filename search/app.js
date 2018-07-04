@@ -5,7 +5,15 @@ const yaml = require('js-yaml');
 const Ajv = require('ajv');
 const ajv = new Ajv({ allErrors: true });
 
-const swagger = yaml.safeLoad(fs.readFileSync('STAC-standalone.yaml'));
+const swagger = yaml.safeLoad(fs.readFileSync('WFS3core+STAC.yaml'));
+
+const createSchemaValidator = (schemaElement) => {
+  const schema = _.merge({
+    components: swagger.components
+  }, swagger.components.schemas[schemaElement]);
+
+  return ajv.compile(schema);
+};
 
 const getSearchValidator = (swagger) => {
   const schema = _.merge({
@@ -111,80 +119,99 @@ const getResponseValidator = (swagger) => {
 // TODO the URL should include the collection identifier.
 // in that case the API needs to implement a search for collections (like WFS)
 
+const generateLink = (event, path) => {
+  const host = event.headers.Host;
+  const protocol = event.headers['X-Forwarded-Proto'];
+  let stageUrlPart = '';
+  if (!host.includes('localhost')) {
+    // If we're running locally the stage isn't part of the URL.
+    stageUrlPart = `/${event.requestContext.stage}`;
+  }
+  return `${protocol}://${host}${stageUrlPart}/search${path}`;
+};
 
 const getRoot = async (event, parsedPath) => {
   console.log(`getRoot ${JSON.stringify(parsedPath, null, 2)}`);
   return {
-    statusCode: 200,
-    body: JSON.stringify({ hello: 'world' })
+    links: [
+      {
+        href: generateLink(event, ''),
+        rel: 'self',
+        type: 'application/json',
+        title: 'this document'
+      },
+      {
+        href: generateLink(event, '/conformance'),
+        rel: 'conformance',
+        type: 'application/json',
+        title: 'WFS 3.0 conformance classes implemented by this server'
+      },
+      {
+        href: generateLink(event, '/collections'),
+        rel: 'data',
+        type: 'application/json',
+        title: 'Metadata about the feature collections'
+      }
+    ]
   };
 };
 
 const getConformance = async (event, parsedPath) => {
   console.log(`getConformance ${JSON.stringify(parsedPath, null, 2)}`);
   return {
-    statusCode: 200,
-    body: JSON.stringify({ hello: 'world' })
+    conformsTo: [
+      'http://www.opengis.net/spec/wfs-1/3.0/req/core',
+      'http://www.opengis.net/spec/wfs-1/3.0/req/oas30',
+      'http://www.opengis.net/spec/wfs-1/3.0/req/html',
+      'http://www.opengis.net/spec/wfs-1/3.0/req/geojson'
+    ]
   };
 };
 
 const getCollections = async (event, parsedPath) => {
   console.log(`getCollections ${JSON.stringify(parsedPath, null, 2)}`);
-  return {
-    statusCode: 200,
-    body: JSON.stringify({ hello: 'world' })
-  };
+  return { hello: 'world' };
 };
 
 const getCollection = async (event, parsedPath) => {
   console.log(`getCollection ${JSON.stringify(parsedPath, null, 2)}`);
-  return {
-    statusCode: 200,
-    body: JSON.stringify({ hello: 'world' })
-  };
+  return { hello: 'world' };
 };
 
 const getGranules = async (event, parsedPath) => {
   console.log(`getGranules ${JSON.stringify(parsedPath, null, 2)}`);
-  return {
-    statusCode: 200,
-    body: JSON.stringify({ hello: 'world' })
-  };
+  return { hello: 'world' };
 };
 
 const getGranule = async (event, parsedPath) => {
   console.log(`getGranule ${JSON.stringify(parsedPath, null, 2)}`);
-  return {
-    statusCode: 200,
-    body: JSON.stringify({ hello: 'world' })
-  };
+  return { hello: 'world' };
 };
 
 const stacGetSearch = async (event, parsedPath) => {
   console.log(`stacGetSearch ${JSON.stringify(parsedPath, null, 2)}`);
-  return {
-    statusCode: 200,
-    body: JSON.stringify({ hello: 'world' })
-  };
+  return { hello: 'world' };
 };
 
 const stacPostSearch = async (event, parsedPath) => {
   console.log(`stacPostSearch ${JSON.stringify(parsedPath, null, 2)}`);
-  return {
-    statusCode: 200,
-    body: JSON.stringify({ hello: 'world' })
-  };
+  return { hello: 'world' };
 };
 
+// An array of different configured APIs endpoints. Each array item contains:
+// - a regular expression to match the path
+// - the http method supported
+// - The handler function to process the request
+// - The name of the element within the swagger schema to validate the response.
 const pathToFunction = [
-  [/^\/search$/, getRoot],
-  [/^\/search\/conformance$/, 'GET', getConformance],
-  [/^\/search\/collections$/, 'GET', getCollections],
-  [/^\/search\/collections\/([^/]+)$/, 'GET', getCollection],
-  [/^\/search\/collections\/([^/]+)\/items$/, 'GET', getGranules],
-  [/^\/search\/collections\/([^/]+)\/items\/([^/]+)$/, 'GET', getGranule],
-  [/^\/search\/stac$/, 'GET', stacGetSearch],
-  [/^\/search\/stac$/, 'POST', stacPostSearch]
+  [/^\/search$/, 'GET', getRoot, 'root'],
+  [/^\/search\/conformance$/, 'GET', getConformance, 'req-classes'],
+  [/^\/search\/collections$/, 'GET', getCollections, 'content'],
+  [/^\/search\/collections\/([^/]+)$/, 'GET', getCollection, 'collectionInfo'],
+  [/^\/search\/collections\/([^/]+)\/items$/, 'GET', getGranules, 'featureCollectionGeoJSON'],
+  [/^\/search\/collections\/([^/]+)\/items\/([^/]+)$/, 'GET', getGranule, 'featureGeoJSON'],
+  [/^\/search\/stac$/, 'GET', stacGetSearch, 'itemCollection'],
+  [/^\/search\/stac$/, 'POST', stacPostSearch, 'itemCollection']
 ];
 
 exports.lambda_handler = async (event, context, callback) => {
@@ -194,20 +221,35 @@ exports.lambda_handler = async (event, context, callback) => {
     const { path, requestContext } = event;
     const { httpMethod } = requestContext;
     const potentialMatch = _.chain(pathToFunction)
-      .map(([pathRegex, matchHttpMethod, fn]) => {
+      .map(([pathRegex, matchHttpMethod, fn, responseSchemaElement]) => {
         if (matchHttpMethod === httpMethod) {
           const match = pathRegex.exec(path);
           if (match) {
-            return [match, fn];
+            return [match, fn, responseSchemaElement];
           }
         }
         return null;
       }).find().value();
 
     if (potentialMatch) {
-      const [pathMatch, handlerFn] = potentialMatch;
+      const [pathMatch, handlerFn, responseSchemaElement] = potentialMatch;
       const response = await handlerFn(event, pathMatch);
-      callback(null, response);
+      const validator = createSchemaValidator(responseSchemaElement);
+      if (!validator(response)) {
+        // The response generated is not valid
+        callback(null, {
+          statusCode: 500,
+          body: JSON.stringify({
+            msg: 'An invalid body was generated processing this request.',
+            errors: validator.errors
+          })
+        });
+      }
+      // else The response is valid
+      callback(null, {
+        statusCode: 200,
+        body: JSON.stringify(response)
+      });
     }
     else {
       const err = `Could not find matching request handler for ${httpMethod} ${path}`;

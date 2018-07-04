@@ -35,21 +35,6 @@ Resources:
           Properties:
             Path: /{proxy+}
             Method: ANY
-        # Get:
-        #   Type: Api
-        #   Properties:
-        #     Path: /conformance
-        #     Method: get
-        # SearchGet:
-        #   Type: Api
-        #   Properties:
-        #     Path: /search
-        #     Method: get
-        # SearchPost:
-        #   Type: Api
-        #   Properties:
-        #     Path: /search
-        #     Method: post
 
 Outputs:
 
