@@ -1,3 +1,4 @@
+const _ = require('lodash');
 const axios = require('axios');
 
 
@@ -7,31 +8,32 @@ const axios = require('axios');
 // has mappings from JSON response to GeoJSON features
 
 
-// p = axios.get('https://cmr.earthdata.nasa.gov/search/granules.json?concept_id=C204690560-LAADS')
-//
-// let result;
-// p.then(v => result = v)
-//
-//
-// result
-
 const makeCmrSearchUrl = (path) => `https://cmr.earthdata.nasa.gov/search${path}`;
 
+const headers = {
+  'Client-Id': 'cmr-stac-api-proxy'
+};
 
-const findCollections = async () => {
+const findCollections = async (params = {}) => {
   const response = await axios.get(makeCmrSearchUrl('/collections.json'), {
-    params: {
+    params: _.merge({
       has_granules: true
-    }
+    }, params),
+    headers
   });
   return response.data.feed.entry;
 };
 
-// TODO when finding collections:
-// - limit to just the ones with granules
-// -
+const getCollection = async (conceptId) => {
+  const collections = await findCollections({ concept_id: conceptId });
+  if (collections.length > 0) {
+    return collections[0];
+  }
+  return null;
+};
 
 module.exports = {
   makeCmrSearchUrl,
-  findCollections
+  findCollections,
+  getCollection
 };

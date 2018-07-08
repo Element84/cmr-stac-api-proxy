@@ -129,15 +129,18 @@ const getCollections = async (event, parsedPath) => {
   console.log(`getCollections ${JSON.stringify(parsedPath, null, 2)}`);
   const collections = await cmr.findCollections();
   return {
-    // TODO links
-    links: [],
+    links: [
+      wfs.createLink('self', appUtil.generateAppUrl(event, '/collections'), 'this document')
+    ],
     collections: _.map(collections, (coll) => cmrConverter.cmrCollToWFSColl(event, coll))
   };
 };
 
 const getCollection = async (event, parsedPath) => {
   console.log(`getCollection ${JSON.stringify(parsedPath, null, 2)}`);
-  return { hello: 'world' };
+  const conceptId = parsedPath[1];
+  const coll = await cmr.getCollection(conceptId);
+  return cmrConverter.cmrCollToWFSColl(event, coll);
 };
 
 const getGranules = async (event, parsedPath) => {
@@ -180,8 +183,8 @@ exports.lambda_handler = async (event, context, callback) => {
   console.log(JSON.stringify(event, null, 2));
 
   try {
-    const { path, requestContext } = event;
-    const { httpMethod } = requestContext;
+    const path = event.path.replace(/\/$/, ''); // Remove last slash
+    const { httpMethod } = event.requestContext;
     const potentialMatch = _.chain(pathToFunction)
       .map(([pathRegex, matchHttpMethod, fn, responseSchemaElement]) => {
         if (matchHttpMethod === httpMethod) {
