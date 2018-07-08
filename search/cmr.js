@@ -7,16 +7,31 @@ const axios = require('axios');
 // has mappings from JSON response to GeoJSON features
 
 
-p = axios.get('https://cmr.earthdata.nasa.gov/search/granules.json?concept_id=C204690560-LAADS')
+// p = axios.get('https://cmr.earthdata.nasa.gov/search/granules.json?concept_id=C204690560-LAADS')
+//
+// let result;
+// p.then(v => result = v)
+//
+//
+// result
 
-let result;
-p.then(v => result = v)
+const makeCmrSearchUrl = (path) => `https://cmr.earthdata.nasa.gov/search${path}`;
 
 
-result
-
-
+const findCollections = async () => {
+  const response = await axios.get(makeCmrSearchUrl('/collections.json'), {
+    params: {
+      has_granules: true
+    }
+  });
+  return response.data.feed.entry;
+};
 
 // TODO when finding collections:
 // - limit to just the ones with granules
 // -
+
+module.exports = {
+  makeCmrSearchUrl,
+  findCollections
+};

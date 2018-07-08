@@ -4,6 +4,10 @@ const fs = require('fs');
 const yaml = require('js-yaml');
 const Ajv = require('ajv');
 const ajv = new Ajv({ allErrors: true });
+const cmr = require('./cmr');
+const cmrConverter = require('./cmr_converter');
+const appUtil = require('./app_util');
+const wfs = appUtil.wfs;
 
 const swagger = yaml.safeLoad(fs.readFileSync('WFS3core+STAC.yaml'));
 
@@ -15,18 +19,10 @@ const createSchemaValidator = (schemaElement) => {
   return ajv.compile(schema);
 };
 
-const getSearchValidator = (swagger) => {
-  const schema = _.merge({
-    components: swagger.components
-  }, swagger.components.schemas.searchBody);
 
-  return ajv.compile(schema);
-};
+// Search body example
 // // TODO any top level body members other than this must be hand checked for because of JSON schema
 // // limitiation
-// p = getSearchValidator();
-// let validate;
-// p.then(v => validate = v)
 // validate({
 //   // TODO the bbox will need extra validation (CMR can do that)
 //   bbox: [0,0, 1,1,],
@@ -46,22 +42,8 @@ const getSearchValidator = (swagger) => {
 //     ]
 //   }
 // })
-// validate.errors
 
-// Response validation
-const getResponseValidator = (swagger) => {
-  const schema = _.merge({
-    components: swagger.components
-  }, swagger.components.schemas.itemCollection);
-
-  return ajv.compile(schema);
-};
-
-// validate = getResponseValidator(swagger)
-//
-// validate({})
-// validate.errors
-//
+// Example search response
 // validate({
 //   type: 'FeatureCollection',
 //   features: [{
@@ -113,45 +95,16 @@ const getResponseValidator = (swagger) => {
 //     next: 'http://example.com/get-more-results-here'
 //   }
 // })
-// validate.errors
-
-
-// TODO the URL should include the collection identifier.
-// in that case the API needs to implement a search for collections (like WFS)
-
-const generateLink = (event, path) => {
-  const host = event.headers.Host;
-  const protocol = event.headers['X-Forwarded-Proto'];
-  let stageUrlPart = '';
-  if (!host.includes('localhost')) {
-    // If we're running locally the stage isn't part of the URL.
-    stageUrlPart = `/${event.requestContext.stage}`;
-  }
-  return `${protocol}://${host}${stageUrlPart}/search${path}`;
-};
 
 const getRoot = async (event, parsedPath) => {
   console.log(`getRoot ${JSON.stringify(parsedPath, null, 2)}`);
   return {
     links: [
-      {
-        href: generateLink(event, ''),
-        rel: 'self',
-        type: 'application/json',
-        title: 'this document'
-      },
-      {
-        href: generateLink(event, '/conformance'),
-        rel: 'conformance',
-        type: 'application/json',
-        title: 'WFS 3.0 conformance classes implemented by this server'
-      },
-      {
-        href: generateLink(event, '/collections'),
-        rel: 'data',
-        type: 'application/json',
-        title: 'Metadata about the feature collections'
-      }
+      wfs.createLink('self', appUtil.generateAppUrl(event, ''), 'this document'),
+      wfs.createLink('conformance', appUtil.generateAppUrl(event, '/conformance'),
+        'WFS 3.0 conformance classes implemented by this server'),
+      wfs.createLink('data', appUtil.generateAppUrl(event, '/collections'),
+        'Metadata about the feature collections')
     ]
   };
 };
@@ -168,9 +121,18 @@ const getConformance = async (event, parsedPath) => {
   };
 };
 
+// TODO for collections
+// - provider parameter
+// - limit and offset parameters
+
 const getCollections = async (event, parsedPath) => {
   console.log(`getCollections ${JSON.stringify(parsedPath, null, 2)}`);
-  return { hello: 'world' };
+  const collections = await cmr.findCollections();
+  return {
+    // TODO links
+    links: [],
+    collections: _.map(collections, (coll) => cmrConverter.cmrCollToWFSColl(event, coll))
+  };
 };
 
 const getCollection = async (event, parsedPath) => {
@@ -240,6 +202,7 @@ exports.lambda_handler = async (event, context, callback) => {
         callback(null, {
           statusCode: 500,
           body: JSON.stringify({
+            body: response,
             msg: 'An invalid body was generated processing this request.',
             errors: validator.errors
           })
@@ -265,3 +228,29 @@ exports.lambda_handler = async (event, context, callback) => {
     callback(err, null);
   }
 };
+
+// const _ = require('lodash');
+// const cmr = require('./cmr');
+// cmrConverter = require('./cmr_converter');
+// fakeEvent = {
+//   headers: {
+//     Host: 'example.com',
+//     'x-Forwarded-Proto': 'https'
+//   },
+//   requestContext: { stage: 'Prod' }
+// }
+
+// p = getCollections(fakeEvent, [])
+// let result
+// p.then(v => result = v)
+//
+// result.collections[0]
+//
+//
+// p = cmr.findCollections();
+// let collections
+// p.then(v => collections = v)
+//
+// coll = collections[0]
+//
+// cmrConverter._private.cmrCollSpatialToExtents(coll)
