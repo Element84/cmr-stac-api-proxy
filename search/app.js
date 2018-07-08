@@ -140,8 +140,15 @@ const getCollection = async (event, parsedPath) => {
   console.log(`getCollection ${JSON.stringify(parsedPath, null, 2)}`);
   const conceptId = parsedPath[1];
   const coll = await cmr.getCollection(conceptId);
-  return cmrConverter.cmrCollToWFSColl(event, coll);
+  if (coll) {
+    return cmrConverter.cmrCollToWFSColl(event, coll);
+  }
+  return null;
 };
+
+// TODO for getGranules
+//  - limit and offset parameters
+// - any parameters supported by CMR EXCEPT the ones that we will use (collection_concept_id)
 
 const getGranules = async (event, parsedPath) => {
   console.log(`getGranules ${JSON.stringify(parsedPath, null, 2)}`);
@@ -199,23 +206,35 @@ exports.lambda_handler = async (event, context, callback) => {
     if (potentialMatch) {
       const [pathMatch, handlerFn, responseSchemaElement] = potentialMatch;
       const response = await handlerFn(event, pathMatch);
-      const validator = createSchemaValidator(responseSchemaElement);
-      if (!validator(response)) {
-        // The response generated is not valid
+
+      if (response) {
+        const validator = createSchemaValidator(responseSchemaElement);
+        if (!validator(response)) {
+          // The response generated is not valid
+          callback(null, {
+            statusCode: 500,
+            body: JSON.stringify({
+              body: response,
+              msg: 'An invalid body was generated processing this request.',
+              errors: validator.errors
+            })
+          });
+        }
+        // else The response is valid
         callback(null, {
-          statusCode: 500,
+          statusCode: 200,
+          body: JSON.stringify(response)
+        });
+      }
+      else {
+        // response is null
+        callback(null, {
+          statusCode: 404,
           body: JSON.stringify({
-            body: response,
-            msg: 'An invalid body was generated processing this request.',
-            errors: validator.errors
+            msg: `Could not find ${path}`
           })
         });
       }
-      // else The response is valid
-      callback(null, {
-        statusCode: 200,
-        body: JSON.stringify(response)
-      });
     }
     else {
       const err = `Could not find matching request handler for ${httpMethod} ${path}`;
