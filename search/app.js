@@ -121,13 +121,24 @@ const getConformance = async (event, parsedPath) => {
   };
 };
 
-// TODO for collections
-// - provider parameter
-// - limit and offset parameters
+const wfsParamsToCmrParams = (params) => {
+  const fixedVals = _.mapValues(params, (v) => {
+    if (_.isArray(v)) {
+      return _.first(v);
+    }
+    return v;
+  });
+  const renameKeys = {
+    limit: 'page_size'
+  };
+
+  return _.mapKeys(fixedVals, (v, k) => renameKeys[k] || k);
+};
 
 const getCollections = async (event, parsedPath) => {
   console.log(`getCollections ${JSON.stringify(parsedPath, null, 2)}`);
-  const collections = await cmr.findCollections();
+  const params = wfsParamsToCmrParams(event.queryStringParameters);
+  const collections = await cmr.findCollections(params);
   return {
     links: [
       wfs.createLink('self', appUtil.generateAppUrl(event, '/collections'), 'this document')
@@ -147,17 +158,31 @@ const getCollection = async (event, parsedPath) => {
 };
 
 // TODO for getGranules
-//  - limit and offset parameters
+// - WFS parameters
+//   - limit
+//   - bbox
+//   - time
+// - offset parameter
 // - any parameters supported by CMR EXCEPT the ones that we will use (collection_concept_id)
 
 const getGranules = async (event, parsedPath) => {
   console.log(`getGranules ${JSON.stringify(parsedPath, null, 2)}`);
-  return { hello: 'world' };
+  const conceptId = parsedPath[1];
+  const granules = await cmr.findGranules({ collection_concept_id: conceptId });
+  return {
+    features: _.map(granules, (gran) => cmrConverter.cmrGranToFeatureGeoJSON(event, gran))
+  };
 };
 
 const getGranule = async (event, parsedPath) => {
   console.log(`getGranule ${JSON.stringify(parsedPath, null, 2)}`);
-  return { hello: 'world' };
+  const collConceptId = parsedPath[1];
+  const conceptId = parsedPath[2];
+  const granules = await cmr.findGranules({
+    collection_concept_id: collConceptId,
+    concept_id: conceptId
+  });
+  return cmrConverter.cmrGranToFeatureGeoJSON(event, granules[0]);
 };
 
 const stacGetSearch = async (event, parsedPath) => {
@@ -176,6 +201,8 @@ const stacPostSearch = async (event, parsedPath) => {
 // - The handler function to process the request
 // - The name of the element within the swagger schema to validate the response.
 const pathToFunction = [
+  ['empty', 'GET', getRoot, 'root'],
+  [/^\/$/, 'GET', getRoot, 'root'],
   [/^\/search$/, 'GET', getRoot, 'root'],
   [/^\/search\/conformance$/, 'GET', getConformance, 'req-classes'],
   [/^\/search\/collections$/, 'GET', getCollections, 'content'],
@@ -195,9 +222,16 @@ exports.lambda_handler = async (event, context, callback) => {
     const potentialMatch = _.chain(pathToFunction)
       .map(([pathRegex, matchHttpMethod, fn, responseSchemaElement]) => {
         if (matchHttpMethod === httpMethod) {
-          const match = pathRegex.exec(path);
-          if (match) {
-            return [match, fn, responseSchemaElement];
+          if (pathRegex === 'empty') {
+            if (path === '') {
+              return ['empty', fn, responseSchemaElement];
+            }
+          }
+          else {
+            const match = pathRegex.exec(path);
+            if (match) {
+              return [match, fn, responseSchemaElement];
+            }
           }
         }
         return null;
@@ -246,8 +280,20 @@ exports.lambda_handler = async (event, context, callback) => {
     }
   }
   catch (err) {
-    console.log(err);
-    callback(err, null);
+    if (_.get(err, 'response.data.errors')) {
+      callback(null, {
+        statusCode: 400,
+        headers: { 'content-type': 'application/json' },
+        body: err.response.data.errors
+      });
+    }
+    else {
+      console.log(err);
+      callback(null, {
+        statusCode: 500,
+        body: 'Internal server error'
+      });
+    }
   }
 };
 

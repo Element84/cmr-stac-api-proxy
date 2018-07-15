@@ -104,8 +104,85 @@ const cmrCollToWFSColl = (event, cmrColl) => ({
   }
 });
 
+const cmrPolygonToGeoJsonPolygon = (polygon) => {
+  const rings = _.map(polygon,
+    (ringStr) => _.map(pointStringToPoints(ringStr), ([lat, lon]) => [lon, lat]));
+  return {
+    type: 'Polygon',
+    coordinates: rings
+  };
+};
+
+const cmrBoxToGeoJsonPolygon = (box) => {
+  const [s, w, n, e] = parseOrdinateString(box);
+  return {
+    type: 'Polygon',
+    coordinates: [[
+      [w, s],
+      [e, s],
+      [e, n],
+      [w, n],
+      [w, s]
+    ]]
+  };
+};
+
+const cmrSpatialToGeoJSONGeometry = (cmrGran) => {
+  let geometry = [];
+  if (cmrGran.polygons) {
+    geometry = geometry.concat(_.map(cmrGran.polygons, cmrPolygonToGeoJsonPolygon));
+  }
+  if (cmrGran.boxes) {
+    geometry = geometry.concat(_.map(cmrGran.boxes, cmrBoxToGeoJsonPolygon));
+  }
+  if (cmrGran.points) {
+    geometry = geometry.concat(_.map(cmrGran.points, (ps) => {
+      const [lat, lon] = parseOrdinateString(ps);
+      return { type: 'Point', coordinates: [lon, lat] };
+    }));
+  }
+  if (geometry.length === 0) {
+    throw new Error(`Unknown spatial ${JSON.stringify(cmrGran)}`);
+  }
+  if (geometry.length === 1) {
+    return geometry[0];
+  }
+  return {
+    type: 'GeometryCollection',
+    geometries: geometry
+  };
+};
+
+
+const cmrGranToFeatureGeoJSON = (event, cmrGran) => ({
+  type: 'Feature',
+  id: cmrGran.id,
+  geometry: cmrSpatialToGeoJSONGeometry(cmrGran),
+  properties: {
+    granule_ur: cmrGran.title,
+    time_start: cmrGran.time_start,
+    time_end: cmrGran.time_end,
+    links: [
+      wfs.createLink(
+        'self',
+        appUtil.generateAppUrl(event,
+          `/collections/${cmrGran.collection_concept_id}/items/${cmrGran.id}`),
+        'Info about this granule'
+      ),
+      wfs.createLink(
+        'parent collection',
+        appUtil.generateAppUrl(event, `/collections/${cmrGran.collection_concept_id}`),
+        'Info about the parent collection'
+      ),
+      wfs.createLink('metadata', cmr.makeCmrSearchUrl(`/concepts/${cmrGran.id}.native`),
+        'Native metadata for granule')
+    ]
+  }
+});
+
 module.exports = {
   cmrCollToWFSColl,
+  cmrGranToFeatureGeoJSON,
   //For testing
   _private: {
     addPointsToBbox,

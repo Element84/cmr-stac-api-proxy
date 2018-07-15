@@ -32,8 +32,19 @@ const getCollection = async (conceptId) => {
   return null;
 };
 
+const findGranules = async (params = {}) => {
+  const response = await axios.get(makeCmrSearchUrl('/granules.json'), {
+    params: _.merge({
+      // TODO any default params?
+    }, params),
+    headers
+  });
+  return response.data.feed.entry;
+};
+
 module.exports = {
   makeCmrSearchUrl,
   findCollections,
+  findGranules,
   getCollection
 };
