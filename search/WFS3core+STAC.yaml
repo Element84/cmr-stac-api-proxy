@@ -7,17 +7,14 @@ info:
     API  that also implements the OGC Web Feature Service 3.0 specification
     (conformance  classes: "STAC", "Core", "GeoJSON", "HTML", "OpenAPI 3.0").
   contact:
-    name: Cool Sat Corp
-    email: info@cool-sat.com
-    url: 'http://cool-sat.com/contact/'
+    name: Jason Gilman - Element 84
+    email: jason@element84.com
+    url: 'https://www.element84.com'
   license:
     name: CC-BY 4.0 license
     url: 'https://creativecommons.org/licenses/by/4.0/'
 servers:
-  - url: 'http://dev.cool-sat.com/'
-    description: Development server
-  - url: 'http://www.cool-sat.com'
-    description: Production server
+  - <server-location>
 paths:
   /:
     get:
@@ -66,6 +63,8 @@ paths:
       operationId: describeCollections
       tags:
         - Capabilities
+      parameters:
+        - $ref: '#/components/parameters/providerId'
       responses:
         '200':
           description: Metadata about the feature collections shared by this API.
@@ -187,6 +186,7 @@ paths:
       tags:
         - STAC
       parameters:
+        - $ref: '#/components/parameters/queryCollectionId'
         - $ref: '#/components/parameters/bbox'
         - $ref: '#/components/parameters/time'
         - $ref: '#/components/parameters/limit'
@@ -322,11 +322,25 @@ components:
         type: string
       style: form
       explode: false
+    providerId:
+      name: providerId
+      in: query
+      required: false
+      description: Idenfifies the provider in the CMR to search
+      schema:
+        type: string
     collectionId:
       name: collectionId
       in: path
       required: true
       description: Identifier (name) of a specific collection
+      schema:
+        type: string
+    queryCollectionId:
+      name: collectionId
+      in: query
+      required: true
+      description: Identifier of a specific collection in the CMR.  example - C5-PROV1
       schema:
         type: string
     featureId:
@@ -578,7 +592,12 @@ components:
         - $ref: '#/components/schemas/timeFilter'
         - $ref: '#/components/schemas/intersectsFilter'
         - type: object
+          required:
+            - collectionId
           properties:
+            collectionId:
+              type: string
+              example: 'C5-PROV1'
             limit:
               type: number
               example: 5

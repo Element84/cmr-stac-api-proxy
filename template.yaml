@@ -10,6 +10,10 @@ Parameters:
     Type: String
 
 Globals:
+  Api:
+    Cors:
+      AllowOrigin: "'*'"
+      AllowHeaders: "'Content-Type'"
   Function:
     Runtime: nodejs8.10
     Timeout: 30

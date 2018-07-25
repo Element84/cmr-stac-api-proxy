@@ -4,12 +4,15 @@ const fs = require('fs');
 const yaml = require('js-yaml');
 const Ajv = require('ajv');
 const ajv = new Ajv({ allErrors: true });
+const mime = require('mime-types');
 const cmr = require('./cmr');
 const cmrConverter = require('./cmr_converter');
 const appUtil = require('./app_util');
+const fsAsync = appUtil.fsAsync;
 const wfs = appUtil.wfs;
 
-const swagger = yaml.safeLoad(fs.readFileSync('WFS3core+STAC.yaml'));
+const swaggerFileContents = fs.readFileSync('WFS3core+STAC.yaml');
+const swagger = yaml.safeLoad(swaggerFileContents);
 
 const createSchemaValidator = (schemaElement) => {
   const schema = _.merge({
@@ -19,6 +22,7 @@ const createSchemaValidator = (schemaElement) => {
   return ajv.compile(schema);
 };
 
+const makeRawResponse = (content) => ({ _raw: content });
 
 // Search body example
 // // TODO any top level body members other than this must be hand checked for because of JSON schema
@@ -95,9 +99,74 @@ const createSchemaValidator = (schemaElement) => {
 //     next: 'http://example.com/get-more-results-here'
 //   }
 // })
+const getDocs = async (event, parsedPath) => {
+  console.log(`getDocs ${JSON.stringify(parsedPath, null, 2)}`);
+  const file = event.path.replace(/^\/docs/, '');
+  let contents;
+  if (file === '/' || file === '') {
+    // Redirect root application to /docs/index.html
+    return makeRawResponse({
+      statusCode: 302,
+      headers: {
+        Location: appUtil.generateAppUrl(event, '/docs/index.html')
+      },
+      body: 'Redirecting...'
+    });
+  }
+  if (file.endsWith('swagger.yaml')) {
+    contents = swaggerFileContents;
+    // Update the swagger file to be correct when running locally.
+    const host = event.headers.Host;
+    if (host.includes('localhost')) {
+      contents = contents.toString().replace('- <server-location>',
+        `- url: '${appUtil.generateAppUrl(event, '')}'`);
+    }
+  }
+  else {
+    try {
+      contents = await fsAsync.readFile(`${__dirname}/node_modules/swagger-ui-dist/${file}`);
+    }
+    catch (err) {
+      console.log(err);
+      return makeRawResponse({
+        statusCode: 404,
+        body: `Could not find resource ${event.path}`
+      });
+    }
+
+    if (file.endsWith('index.html')) {
+      contents = contents.toString().replace('https://petstore.swagger.io/v2/swagger.json',
+        appUtil.generateAppUrl(event, '/docs/swagger.yaml'))
+        .replace(
+          '<title>Swagger UI</title>',
+          '<title>STAC API - Common Metadata Repository STAC Proxy</title>'
+        );
+    }
+  }
+
+  return makeRawResponse({
+    statusCode: 200,
+    headers: {
+      'Content-Type': mime.lookup(file)
+    },
+    body: contents.toString()
+  });
+};
 
 const getRoot = async (event, parsedPath) => {
   console.log(`getRoot ${JSON.stringify(parsedPath, null, 2)}`);
+  const accept = _.get(event, 'headers.Accept', 'application/json');
+  if (accept.includes('html')) {
+    // Redirect root application to /docs/index.html
+    return makeRawResponse({
+      statusCode: 302,
+      headers: {
+        Location: appUtil.generateAppUrl(event, '/docs/index.html')
+      },
+      body: 'Redirecting...'
+    });
+  }
+  // else return JSON.
   return {
     links: [
       wfs.createLink('self', appUtil.generateAppUrl(event, ''), 'this document'),
@@ -122,12 +191,7 @@ const getConformance = async (event, parsedPath) => {
 };
 
 const wfsParamsToCmrParams = (params) => {
-  const fixedVals = _.mapValues(params, (v) => {
-    if (_.isArray(v)) {
-      return _.first(v);
-    }
-    return v;
-  });
+  const fixedVals = _.mapValues(params, appUtil.firstIfArray);
   const renameKeys = {
     limit: 'page_size'
   };
@@ -164,6 +228,7 @@ const getCollection = async (event, parsedPath) => {
 //   - time
 // - offset parameter
 // - any parameters supported by CMR EXCEPT the ones that we will use (collection_concept_id)
+// Can use wfsParamsToCmrParams to help implement these
 
 const getGranules = async (event, parsedPath) => {
   console.log(`getGranules ${JSON.stringify(parsedPath, null, 2)}`);
@@ -185,14 +250,96 @@ const getGranule = async (event, parsedPath) => {
   return cmrConverter.cmrGranToFeatureGeoJSON(event, granules[0]);
 };
 
+// {
+//   "bbox": [
+//     -110,
+//     39.5,
+//     -105,
+//     40.5
+//   ],
+//   "time": "2018-02-12T00:00:00Z/2018-03-18T12:31:12Z",
+//   "intersects": {
+//     "type": "polygon",
+//     "coordinates": [
+//       [
+//         [
+//           -104,
+//           35
+//         ],
+//         [
+//           -103,
+//           35
+//         ],
+//         [
+//           -103,
+//           34
+//         ],
+//         [
+//           -104,
+//           34
+//         ],
+//         [
+//           -104,
+//           35
+//         ]
+//       ]
+//     ]
+//   },
+//   "limit": 5,
+//   "collectionId": "C5-PROV1"
+// }
+
+const stacParamsToCmrParams = {
+  bbox: ['bounding_box', (v) => v.join(',')],
+  time: ['temporal', _.identity],
+  intersects: ['polygon', (v) => _(v.coordinates).first().flattenDeep().join(',').value()],
+  limit: ['page_size', _.identity],
+  collectionId: ['collection_concept_id', _.identity]
+};
+
+const stacBaseSearch = async (event, params) => {
+  // TODO verify collection param is present.
+  // -  Use the stac schema to validate params. collection param is there.
+
+  const cmrParams = _(params)
+    .toPairs()
+    .map(([k, v]) => {
+      if (stacParamsToCmrParams[k]) {
+        const [newName, converter] = stacParamsToCmrParams[k];
+        return [newName, converter(v)];
+      }
+      return [k, v];
+    })
+    .fromPairs()
+    .value();
+
+  const granules = await cmr.findGranules(cmrParams);
+  return cmrConverter.cmrGranulesToFeatureCollection(event, granules);
+};
+
+const paramParsers = {
+  limit: (v) => parseInt(v, 10),
+  bbox: cmrConverter.parseOrdinateString,
+  time: _.identity
+};
+
 const stacGetSearch = async (event, parsedPath) => {
   console.log(`stacGetSearch ${JSON.stringify(parsedPath, null, 2)}`);
-  return { hello: 'world' };
+  const params = _(event.queryStringParameters)
+    .mapValues(appUtil.firstIfArray)
+    .mapValues((v, k) => {
+      if (paramParsers[k]) {
+        return paramParsers[k](v);
+      }
+      return v;
+    })
+    .value();
+  return stacBaseSearch(event, params);
 };
 
 const stacPostSearch = async (event, parsedPath) => {
   console.log(`stacPostSearch ${JSON.stringify(parsedPath, null, 2)}`);
-  return { hello: 'world' };
+  return stacBaseSearch(event, JSON.parse(event.body));
 };
 
 // An array of different configured APIs endpoints. Each array item contains:
@@ -203,12 +350,12 @@ const stacPostSearch = async (event, parsedPath) => {
 const pathToFunction = [
   ['empty', 'GET', getRoot, 'root'],
   [/^\/$/, 'GET', getRoot, 'root'],
-  [/^\/search$/, 'GET', getRoot, 'root'],
-  [/^\/search\/conformance$/, 'GET', getConformance, 'req-classes'],
-  [/^\/search\/collections$/, 'GET', getCollections, 'content'],
-  [/^\/search\/collections\/([^/]+)$/, 'GET', getCollection, 'collectionInfo'],
-  [/^\/search\/collections\/([^/]+)\/items$/, 'GET', getGranules, 'featureCollectionGeoJSON'],
-  [/^\/search\/collections\/([^/]+)\/items\/([^/]+)$/, 'GET', getGranule, 'featureGeoJSON'],
+  [/^\/docs.*$/, 'GET', getDocs],
+  [/^\/conformance$/, 'GET', getConformance, 'req-classes'],
+  [/^\/collections$/, 'GET', getCollections, 'content'],
+  [/^\/collections\/([^/]+)$/, 'GET', getCollection, 'collectionInfo'],
+  [/^\/collections\/([^/]+)\/items$/, 'GET', getGranules, 'featureCollectionGeoJSON'],
+  [/^\/collections\/([^/]+)\/items\/([^/]+)$/, 'GET', getGranule, 'featureGeoJSON'],
   [/^\/search\/stac$/, 'GET', stacGetSearch, 'itemCollection'],
   [/^\/search\/stac$/, 'POST', stacPostSearch, 'itemCollection']
 ];
@@ -241,7 +388,10 @@ exports.lambda_handler = async (event, context, callback) => {
       const [pathMatch, handlerFn, responseSchemaElement] = potentialMatch;
       const response = await handlerFn(event, pathMatch);
 
-      if (response) {
+      if (response && response._raw) {
+        callback(null, response._raw);
+      }
+      else if (response) {
         const validator = createSchemaValidator(responseSchemaElement);
         if (!validator(response)) {
           // The response generated is not valid
@@ -257,6 +407,10 @@ exports.lambda_handler = async (event, context, callback) => {
         // else The response is valid
         callback(null, {
           statusCode: 200,
+          headers: {
+            'Content-Type': 'application/json',
+            'Access-Control-Allow-Origin': '*'
+          },
           body: JSON.stringify(response)
         });
       }
@@ -284,7 +438,7 @@ exports.lambda_handler = async (event, context, callback) => {
       callback(null, {
         statusCode: 400,
         headers: { 'content-type': 'application/json' },
-        body: err.response.data.errors
+        body: JSON.stringify(err.response.data.errors)
       });
     }
     else {

@@ -14,13 +14,14 @@ const headers = {
   'Client-Id': 'cmr-stac-api-proxy'
 };
 
+const cmrSearch = async (url, params) => {
+  console.log(`CMR Search ${url} ${JSON.stringify(params)}`);
+  return axios.get(url, { params, headers });
+};
+
 const findCollections = async (params = {}) => {
-  const response = await axios.get(makeCmrSearchUrl('/collections.json'), {
-    params: _.merge({
-      has_granules: true
-    }, params),
-    headers
-  });
+  const response = await cmrSearch(makeCmrSearchUrl('/collections.json'),
+    _.merge({ has_granules: true }, params));
   return response.data.feed.entry;
 };
 
@@ -33,12 +34,7 @@ const getCollection = async (conceptId) => {
 };
 
 const findGranules = async (params = {}) => {
-  const response = await axios.get(makeCmrSearchUrl('/granules.json'), {
-    params: _.merge({
-      // TODO any default params?
-    }, params),
-    headers
-  });
+  const response = await cmrSearch(makeCmrSearchUrl('/granules.json'), params);
   return response.data.feed.entry;
 };
 

@@ -36,7 +36,7 @@ const mergeBoxes = (box1, box2) => {
   ];
 };
 
-const parseOrdinateString = (numStr) => _.map(numStr.split(' '), parseFloat);
+const parseOrdinateString = (numStr) => _.map(numStr.split(/\s|,/), parseFloat);
 
 const pointStringToPoints = (pointStr) => _.chunk(parseOrdinateString(pointStr), 2);
 
@@ -77,6 +77,14 @@ const cmrCollSpatialToExtents = (cmrColl) => {
   return bbox;
 };
 
+const stacSearchWithCurrentParams = (event, collId) => {
+  const newParams = _.clone(event.queryStringParameters);
+  newParams.collectionId = collId;
+  // The provider param isn't needed once the colleciton id is set.
+  delete newParams.provider;
+  return appUtil.generateAppUrl(event, '/search/stac', newParams);
+};
+
 const cmrCollToWFSColl = (event, cmrColl) => ({
   name: cmrColl.id,
   title: cmrColl.dataset_id,
@@ -84,6 +92,8 @@ const cmrCollToWFSColl = (event, cmrColl) => ({
   links: [
     wfs.createLink('self', appUtil.generateAppUrl(event, `/collections/${cmrColl.id}`),
       'Info about this collection'),
+    wfs.createLink('stac', stacSearchWithCurrentParams(event, cmrColl.id),
+      'STAC Search this collection'),
     wfs.createLink('items', appUtil.generateAppUrl(event, `/collections/${cmrColl.id}/items`),
       'Granules in this collection'),
     wfs.createLink('overview', cmr.makeCmrSearchUrl(`/concepts/${cmrColl.id}.html`),
@@ -180,9 +190,27 @@ const cmrGranToFeatureGeoJSON = (event, cmrGran) => ({
   }
 });
 
+const cmrGranulesToFeatureCollection = (event, cmrGrans) => {
+  const nextPage = appUtil.extractParam(event.queryStringParameters, 'page_num', 1) + 1;
+  const newParams = _.clone(event.queryStringParameters || {});
+  newParams.page_num = nextPage;
+  const nextResultsLink = appUtil.generateAppUrl(event, event.path, newParams);
+
+  return {
+    type: 'FeatureCollection',
+    features: _.map(cmrGrans, (g) => cmrGranToFeatureGeoJSON(event, g)),
+    links: [
+      wfs.createLink('self', appUtil.generateSelfUrl(event), 'Search for granules'),
+      wfs.createLink('next', nextResultsLink, 'Get the next set of results')
+    ]
+  };
+};
+
 module.exports = {
   cmrCollToWFSColl,
   cmrGranToFeatureGeoJSON,
+  cmrGranulesToFeatureCollection,
+  parseOrdinateString,
   //For testing
   _private: {
     addPointsToBbox,
