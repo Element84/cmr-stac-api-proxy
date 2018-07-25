@@ -24,81 +24,6 @@ const createSchemaValidator = (schemaElement) => {
 
 const makeRawResponse = (content) => ({ _raw: content });
 
-// Search body example
-// // TODO any top level body members other than this must be hand checked for because of JSON schema
-// // limitiation
-// validate({
-//   // TODO the bbox will need extra validation (CMR can do that)
-//   bbox: [0,0, 1,1,],
-//   // The Time param will need extra validation (But CMR can do that.)
-//   time: '2018-02-12T00:00:00Z/2018-03-18T12:31:12Z',
-//   intersects: {
-//     type: 'polygon',
-//     coordinates: [
-//       // ring
-//       [
-//         // points
-//         [0,0],
-//         [1,1],
-//         [0,0],
-//         [1,1],
-//       ]
-//     ]
-//   }
-// })
-
-// Example search response
-// validate({
-//   type: 'FeatureCollection',
-//   features: [{
-//     id: 'G12345-PROV' ,// or granule ur maybe
-//     //bbox is optional
-//     type: 'Feature',
-//     geometry: {
-//       // Need to create valid geojson here. Look at previous code that I created
-//       type: 'Polygon',
-//       coordinates: [
-//         [
-//           [-122.308150179, 37.488035566],
-//           [-122.597502109, 37.538869539],
-//           [-122.576687533, 37.613537207],
-//           [-122.2880486, 37.562818007],
-//           [-122.308150179, 37.488035566]
-//         ]
-//       ]
-//     },
-//     links: [
-//       // TODO figure out what kinds of links to include. Ideas:
-//       // - Metadata in CMR
-//       // - Any downloadable data available in the metadata
-//       // - browse images
-//       // - parent collection
-//       {
-//         href: '',
-//         rel: 'prev?',
-//         type: 'the file type',
-//       }
-//     ],
-//     properties: {
-//       datetime: '2018-02-12T00:00:00Z/2018-03-18T12:31:12Z', // Granule start date, range or periodic See time param.
-//       provider: 'PROV1',
-//       license: 'Licensed per dataset. See parent collection resources.'
-//     },
-//     assets: {
-//       analytic: {
-//         name: '4-Band Analytic',
-//         href: 'http...something.tif'
-//       },
-//       thumbnail: {
-//         name: 'thumbnail',
-//         href: 'http...something.png'
-//       }
-//     }
-//   }],
-//   links: {
-//     next: 'http://example.com/get-more-results-here'
-//   }
-// })
 const getDocs = async (event, parsedPath) => {
   console.log(`getDocs ${JSON.stringify(parsedPath, null, 2)}`);
   const file = event.path.replace(/^\/docs/, '');
@@ -115,12 +40,9 @@ const getDocs = async (event, parsedPath) => {
   }
   if (file.endsWith('swagger.yaml')) {
     contents = swaggerFileContents;
-    // Update the swagger file to be correct when running locally.
-    const host = event.headers.Host;
-    if (host.includes('localhost')) {
-      contents = contents.toString().replace('- <server-location>',
-        `- url: '${appUtil.generateAppUrl(event, '')}'`);
-    }
+    // Update the swagger file to be correct for deployed location.
+    contents = contents.toString().replace('- <server-location>',
+      `- url: '${appUtil.generateAppUrl(event, '')}'`);
   }
   else {
     try {
@@ -249,45 +171,6 @@ const getGranule = async (event, parsedPath) => {
   });
   return cmrConverter.cmrGranToFeatureGeoJSON(event, granules[0]);
 };
-
-// {
-//   "bbox": [
-//     -110,
-//     39.5,
-//     -105,
-//     40.5
-//   ],
-//   "time": "2018-02-12T00:00:00Z/2018-03-18T12:31:12Z",
-//   "intersects": {
-//     "type": "polygon",
-//     "coordinates": [
-//       [
-//         [
-//           -104,
-//           35
-//         ],
-//         [
-//           -103,
-//           35
-//         ],
-//         [
-//           -103,
-//           34
-//         ],
-//         [
-//           -104,
-//           34
-//         ],
-//         [
-//           -104,
-//           35
-//         ]
-//       ]
-//     ]
-//   },
-//   "limit": 5,
-//   "collectionId": "C5-PROV1"
-// }
 
 const stacParamsToCmrParams = {
   bbox: ['bounding_box', (v) => v.join(',')],

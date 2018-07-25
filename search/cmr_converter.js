@@ -80,7 +80,7 @@ const cmrCollSpatialToExtents = (cmrColl) => {
 // TODO remove page_num params from these
 
 const stacSearchWithCurrentParams = (event, collId) => {
-  const newParams = _.clone(event.queryStringParameters);
+  const newParams = _.clone(event.queryStringParameters) || {};
   newParams.collectionId = collId;
   // The provider param isn't needed once the colleciton id is set.
   delete newParams.provider;
@@ -88,7 +88,7 @@ const stacSearchWithCurrentParams = (event, collId) => {
 };
 
 const cmrGranuleSearchWithCurrentParams = (event, collId) => {
-  const newParams = _.clone(event.queryStringParameters);
+  const newParams = _.clone(event.queryStringParameters) || {};
   newParams.collection_concept_id = collId;
   // The provider param isn't needed once the colleciton id is set.
   delete newParams.collectionId;
@@ -274,7 +274,7 @@ const cmrGranToFeatureGeoJSON = (event, cmrGran) => {
 const cmrGranulesToFeatureCollection = (event, cmrGrans) => {
   const currPage = parseInt(appUtil.extractParam(event.queryStringParameters, 'page_num', '1'), 10);
   const nextPage = currPage + 1;
-  const newParams = _.clone(event.queryStringParameters || {});
+  const newParams = _.clone(event.queryStringParameters) || {};
   newParams.page_num = nextPage;
   const nextResultsLink = appUtil.generateAppUrl(event, event.path, newParams);
 

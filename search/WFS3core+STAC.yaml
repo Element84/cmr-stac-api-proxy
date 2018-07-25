@@ -334,6 +334,7 @@ components:
       in: path
       required: true
       description: Identifier (name) of a specific collection
+      example: C193529899-LPDAAC_ECS
       schema:
         type: string
     queryCollectionId:
@@ -341,6 +342,7 @@ components:
       in: query
       required: true
       description: Identifier of a specific collection in the CMR.  example - C5-PROV1
+      example: C193529899-LPDAAC_ECS
       schema:
         type: string
     featureId:
