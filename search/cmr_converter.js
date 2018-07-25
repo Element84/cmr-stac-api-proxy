@@ -85,6 +85,15 @@ const stacSearchWithCurrentParams = (event, collId) => {
   return appUtil.generateAppUrl(event, '/search/stac', newParams);
 };
 
+const cmrGranuleSearchWithCurrentParams = (event, collId) => {
+  const newParams = _.clone(event.queryStringParameters);
+  newParams.collection_concept_id = collId;
+  // The provider param isn't needed once the colleciton id is set.
+  delete newParams.collectionId;
+  delete newParams.provider;
+  return cmr.makeCmrSearchUrl('granules.json', newParams);
+};
+
 const cmrCollToWFSColl = (event, cmrColl) => ({
   name: cmrColl.id,
   title: cmrColl.dataset_id,
@@ -94,6 +103,8 @@ const cmrCollToWFSColl = (event, cmrColl) => ({
       'Info about this collection'),
     wfs.createLink('stac', stacSearchWithCurrentParams(event, cmrColl.id),
       'STAC Search this collection'),
+    wfs.createLink('cmr', cmrGranuleSearchWithCurrentParams(event, cmrColl.id),
+      'CMR Search this collection'),
     wfs.createLink('items', appUtil.generateAppUrl(event, `/collections/${cmrColl.id}/items`),
       'Granules in this collection'),
     wfs.createLink('overview', cmr.makeCmrSearchUrl(`/concepts/${cmrColl.id}.html`),
@@ -164,7 +175,7 @@ const cmrSpatialToGeoJSONGeometry = (cmrGran) => {
 };
 
 
-const cmrGranToFeatureGeoJSON = (event, cmrGran) => ({
+const cmrGranToFeatureGeoJSONOrig = (event, cmrGran) => ({
   type: 'Feature',
   id: cmrGran.id,
   geometry: cmrSpatialToGeoJSONGeometry(cmrGran),
@@ -190,8 +201,47 @@ const cmrGranToFeatureGeoJSON = (event, cmrGran) => ({
   }
 });
 
+const cmrGranToFeatureGeoJSON = (event, cmrGran) => {
+  let datetime = cmrGran.time_start;
+  if (cmrGran.time_end) {
+    datetime = `${datetime}/${cmrGran.time_end}`;
+  }
+
+  return {
+    type: 'Feature',
+    id: cmrGran.id,
+    geometry: cmrSpatialToGeoJSONGeometry(cmrGran),
+    links: [
+      wfs.createLink(
+        'self',
+        appUtil.generateAppUrl(event,
+          `/collections/${cmrGran.collection_concept_id}/items/${cmrGran.id}`),
+        'Info about this granule'
+      ),
+      wfs.createLink(
+        'parent collection',
+        appUtil.generateAppUrl(event, `/collections/${cmrGran.collection_concept_id}`),
+        'Info about the parent collection'
+      ),
+      wfs.createLink('metadata', cmr.makeCmrSearchUrl(`/concepts/${cmrGran.id}.native`),
+        'Native metadata for granule')
+    ],
+    properties: {
+      provider: cmrGran.data_center,
+      // TODO this appears to be a bug in the schema. It requires additional properties to be
+      // objects. How would we put another string prop in here?
+      // granule_ur: cmrGran.title,
+      datetime
+    },
+    assets: {
+
+    }
+  };
+};
+
 const cmrGranulesToFeatureCollection = (event, cmrGrans) => {
-  const nextPage = appUtil.extractParam(event.queryStringParameters, 'page_num', 1) + 1;
+  const currPage = parseInt(appUtil.extractParam(event.queryStringParameters, 'page_num', '1'), 10);
+  const nextPage = currPage + 1;
   const newParams = _.clone(event.queryStringParameters || {});
   newParams.page_num = nextPage;
   const nextResultsLink = appUtil.generateAppUrl(event, event.path, newParams);
@@ -199,10 +249,10 @@ const cmrGranulesToFeatureCollection = (event, cmrGrans) => {
   return {
     type: 'FeatureCollection',
     features: _.map(cmrGrans, (g) => cmrGranToFeatureGeoJSON(event, g)),
-    links: [
-      wfs.createLink('self', appUtil.generateSelfUrl(event), 'Search for granules'),
-      wfs.createLink('next', nextResultsLink, 'Get the next set of results')
-    ]
+    links: {
+      self: appUtil.generateSelfUrl(event),
+      next: nextResultsLink
+    }
   };
 };
 

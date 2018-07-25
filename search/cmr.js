@@ -1,6 +1,6 @@
 const _ = require('lodash');
 const axios = require('axios');
-
+const buildUrl = require('build-url');
 
 // TODO items from previous clojure impl to incorporate
 // sorting by granule ur
@@ -8,7 +8,9 @@ const axios = require('axios');
 // has mappings from JSON response to GeoJSON features
 
 
-const makeCmrSearchUrl = (path) => `https://cmr.earthdata.nasa.gov/search${path}`;
+const makeCmrSearchUrl = (path, queryParams = null) => buildUrl(
+  'https://cmr.earthdata.nasa.gov/search', { path, queryParams }
+);
 
 const headers = {
   'Client-Id': 'cmr-stac-api-proxy'
@@ -21,7 +23,7 @@ const cmrSearch = async (url, params) => {
 
 const findCollections = async (params = {}) => {
   const response = await cmrSearch(makeCmrSearchUrl('/collections.json'),
-    _.merge({ has_granules: true }, params));
+    _.merge({ has_granules: true, downloadable: true }, params));
   return response.data.feed.entry;
 };
 
