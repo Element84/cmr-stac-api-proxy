@@ -292,7 +292,7 @@ const getGranule = async (event, parsedPath) => {
 const stacParamsToCmrParams = {
   bbox: ['bounding_box', (v) => v.join(',')],
   time: ['temporal', _.identity],
-  intersects: ['polygon', (v) => _(v.coordinates).first().flattenDeep().join(',').value()],
+  intersects: ['polygon', (v) => _.flattenDeep(_.first(v.coordinates)).join(',')],
   limit: ['page_size', _.identity],
   collectionId: ['collection_concept_id', _.identity]
 };

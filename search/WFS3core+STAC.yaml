@@ -597,7 +597,7 @@ components:
           properties:
             collectionId:
               type: string
-              example: 'C5-PROV1'
+              example: 'C193529899-LPDAAC_ECS'
             limit:
               type: number
               example: 5
@@ -683,12 +683,12 @@ components:
       example:
         - - -104
           - 35
-        - - -103
-          - 35
-        - - -103
-          - 34
         - - -104
           - 34
+        - - -103
+          - 34
+        - - -103
+          - 35
         - - -104
           - 35
     point2D:

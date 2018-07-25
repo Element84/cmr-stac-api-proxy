@@ -77,6 +77,8 @@ const cmrCollSpatialToExtents = (cmrColl) => {
   return bbox;
 };
 
+// TODO remove page_num params from these
+
 const stacSearchWithCurrentParams = (event, collId) => {
   const newParams = _.clone(event.queryStringParameters);
   newParams.collectionId = collId;
@@ -201,10 +203,42 @@ const cmrGranToFeatureGeoJSONOrig = (event, cmrGran) => ({
   }
 });
 
+const DATA_REL = 'http://esipfed.org/ns/fedsearch/1.1/data#';
+const BROWSE_REL = 'http://esipfed.org/ns/fedsearch/1.1/browse#';
+const DOC_REL = 'http://esipfed.org/ns/fedsearch/1.1/documentation#';
+
 const cmrGranToFeatureGeoJSON = (event, cmrGran) => {
   let datetime = cmrGran.time_start;
   if (cmrGran.time_end) {
     datetime = `${datetime}/${cmrGran.time_end}`;
+  }
+
+  const dataLink = _.first(
+    _.filter(cmrGran.links, (l) => l.rel === DATA_REL && !l.inherited)
+  );
+  const browseLink = _.first(
+    _.filter(cmrGran.links, (l) => l.rel === BROWSE_REL)
+  );
+  const opendapLink = _.first(
+    _.filter(cmrGran.links, (l) => l.rel === DOC_REL && !l.inherited && l.href.includes('opendap'))
+  );
+
+  const linkToAsset = (l) => ({
+    name: l.title,
+    href: l.href,
+    type: l.type
+  });
+
+
+  const assets = {};
+  if (dataLink) {
+    assets.data = linkToAsset(dataLink);
+  }
+  if (browseLink) {
+    assets.browse = linkToAsset(browseLink);
+  }
+  if (opendapLink) {
+    assets.opendap = linkToAsset(opendapLink);
   }
 
   return {
@@ -233,9 +267,7 @@ const cmrGranToFeatureGeoJSON = (event, cmrGran) => {
       // granule_ur: cmrGran.title,
       datetime
     },
-    assets: {
-
-    }
+    assets
   };
 };
 

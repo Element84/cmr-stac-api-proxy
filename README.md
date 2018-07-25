@@ -16,6 +16,9 @@ TODO links to STAC API
 * /collections/{collectionId}/items/{featureId}
   - Test support through swagger
 * Implement /search/stac parts
+  - Test out stac POST search
+  - Parameter validation
+    - allow extra parameters we might want to pass to CMR
 
 
 ## Development
