@@ -1,11 +1,11 @@
 openapi: 3.0.1
 info:
-  title: STAC API integrated with OGC Web Feature Service standard
+  title: STAC API integrated with OGC Web Feature Service proxying NASA Common Metadata Repository
   version: 0.4.1
   description: >-
-    This is an example OpenAPI specification of a SpatioTemporal Asset Catalog
-    API  that also implements the OGC Web Feature Service 3.0 specification
-    (conformance  classes: "STAC", "Core", "GeoJSON", "HTML", "OpenAPI 3.0").
+    This is an implementation of the SpatioTemporal Asset Catalog
+    API that also implements the OGC Web Feature Service 3.0 specification as a proxy for NASA's
+    Common Metadata Repository (CMR).
   contact:
     name: Jason Gilman - Element 84
     email: jason@element84.com
@@ -59,7 +59,11 @@ paths:
                 $ref: '#/components/schemas/exception'
   /collections:
     get:
-      summary: describe the feature collections in the dataset
+      summary: Describe the feature collections in the dataset.
+      description: >-
+        Searches the CMR for matching collections that have downloadable granules. Additionally
+        supports any parameters of CMR collection search.
+        (https://cmr.earthdata.nasa.gov/search/site/docs/search/api.html)
       operationId: describeCollections
       tags:
         - Capabilities
@@ -119,7 +123,9 @@ paths:
         consist of multiple feature collections. A feature collection is often a
         collection of features of a similar type, based on a common schema.\
 
-        Use content negotiation to request HTML or GeoJSON.
+        A feature in WFS is equivalent to a granule in the CMR. It additionally supports any
+        parameters on the CMR API for searching granules
+        (https://cmr.earthdata.nasa.gov/search/site/docs/search/api.html)
       operationId: getFeatures
       tags:
         - Features
@@ -180,8 +186,10 @@ paths:
   /search/stac:
     get:
       summary: >-
-        retrieve items matching filters. Intended as a shorthand API for simple
-        queries. This method is optional.
+        Searches CMR for granules matching the parameters.
+      description: >-
+        Finds granules matching the parameters. Additionally supports any parameters on the CMR
+        search API. (https://cmr.earthdata.nasa.gov/search/site/docs/search/api.html)
       operationId: getSearchSTAC
       tags:
         - STAC
@@ -211,8 +219,10 @@ paths:
                 type: string
     post:
       summary: >-
-        retrieve items matching filters. Intended as the standard, full-featured
-        query API. This method is mandatory.
+        Searches CMR for granules matching the parameters.
+      description: >-
+        Finds granules matching the parameters. Additionally supports any parameters on the CMR
+        search API. (https://cmr.earthdata.nasa.gov/search/site/docs/search/api.html)
       operationId: postSearchSTAC
       tags:
         - STAC
@@ -349,6 +359,7 @@ components:
       name: featureId
       in: path
       description: Local identifier of a specific feature
+      example: G1018763805-LPDAAC_ECS
       required: true
       schema:
         type: string

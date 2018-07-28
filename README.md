@@ -10,15 +10,6 @@ TODO links to STAC API
 * Add main URL to the application
   - Need Kevin's help
 * Put code in E84 repo
-* /collections/{collectionId}/items
-  - Test support for time and bbox parameters
-  - document offset parameters and more parameters supported
-* /collections/{collectionId}/items/{featureId}
-  - Test support through swagger
-* Implement /search/stac parts
-  - Test out stac POST search
-  - Parameter validation
-    - allow extra parameters we might want to pass to CMR
 
 
 ## Development

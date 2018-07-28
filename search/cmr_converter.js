@@ -176,33 +176,6 @@ const cmrSpatialToGeoJSONGeometry = (cmrGran) => {
   };
 };
 
-
-const cmrGranToFeatureGeoJSONOrig = (event, cmrGran) => ({
-  type: 'Feature',
-  id: cmrGran.id,
-  geometry: cmrSpatialToGeoJSONGeometry(cmrGran),
-  properties: {
-    granule_ur: cmrGran.title,
-    time_start: cmrGran.time_start,
-    time_end: cmrGran.time_end,
-    links: [
-      wfs.createLink(
-        'self',
-        appUtil.generateAppUrl(event,
-          `/collections/${cmrGran.collection_concept_id}/items/${cmrGran.id}`),
-        'Info about this granule'
-      ),
-      wfs.createLink(
-        'parent collection',
-        appUtil.generateAppUrl(event, `/collections/${cmrGran.collection_concept_id}`),
-        'Info about the parent collection'
-      ),
-      wfs.createLink('metadata', cmr.makeCmrSearchUrl(`/concepts/${cmrGran.id}.native`),
-        'Native metadata for granule')
-    ]
-  }
-});
-
 const DATA_REL = 'http://esipfed.org/ns/fedsearch/1.1/data#';
 const BROWSE_REL = 'http://esipfed.org/ns/fedsearch/1.1/browse#';
 const DOC_REL = 'http://esipfed.org/ns/fedsearch/1.1/documentation#';

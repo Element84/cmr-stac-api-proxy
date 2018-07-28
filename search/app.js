@@ -112,18 +112,28 @@ const getConformance = async (event, parsedPath) => {
   };
 };
 
-const wfsParamsToCmrParams = (params) => {
-  const fixedVals = _.mapValues(params, appUtil.firstIfArray);
-  const renameKeys = {
-    limit: 'page_size'
-  };
-
-  return _.mapKeys(fixedVals, (v, k) => renameKeys[k] || k);
+const wfsParamsToCmrParamsMap = {
+  bbox: ['bounding_box', _.identity],
+  time: ['temporal', _.identity],
+  limit: ['page_size', _.identity]
 };
+
+const adaptParams = (paramConverterMap, params) => _(params)
+  .mapValues(appUtil.firstIfArray)
+  .toPairs()
+  .map(([k, v]) => {
+    if (paramConverterMap[k]) {
+      const [newName, converter] = paramConverterMap[k];
+      return [newName, converter(v)];
+    }
+    return [k, v];
+  })
+  .fromPairs()
+  .value();
 
 const getCollections = async (event, parsedPath) => {
   console.log(`getCollections ${JSON.stringify(parsedPath, null, 2)}`);
-  const params = wfsParamsToCmrParams(event.queryStringParameters);
+  const params = adaptParams(wfsParamsToCmrParamsMap, event.queryStringParameters);
   const collections = await cmr.findCollections(params);
   return {
     links: [
@@ -143,19 +153,14 @@ const getCollection = async (event, parsedPath) => {
   return null;
 };
 
-// TODO for getGranules
-// - WFS parameters
-//   - limit
-//   - bbox
-//   - time
-// - offset parameter
-// - any parameters supported by CMR EXCEPT the ones that we will use (collection_concept_id)
-// Can use wfsParamsToCmrParams to help implement these
-
 const getGranules = async (event, parsedPath) => {
   console.log(`getGranules ${JSON.stringify(parsedPath, null, 2)}`);
   const conceptId = parsedPath[1];
-  const granules = await cmr.findGranules({ collection_concept_id: conceptId });
+  const params = _.merge(
+    adaptParams(wfsParamsToCmrParamsMap, event.queryStringParameters),
+    { collection_concept_id: conceptId }
+  );
+  const granules = await cmr.findGranules(params);
   return {
     features: _.map(granules, (gran) => cmrConverter.cmrGranToFeatureGeoJSON(event, gran))
   };
@@ -172,7 +177,7 @@ const getGranule = async (event, parsedPath) => {
   return cmrConverter.cmrGranToFeatureGeoJSON(event, granules[0]);
 };
 
-const stacParamsToCmrParams = {
+const stacParamsToCmrParamsMap = {
   bbox: ['bounding_box', (v) => v.join(',')],
   time: ['temporal', _.identity],
   intersects: ['polygon', (v) => _.flattenDeep(_.first(v.coordinates)).join(',')],
@@ -184,39 +189,20 @@ const stacBaseSearch = async (event, params) => {
   // TODO verify collection param is present.
   // -  Use the stac schema to validate params. collection param is there.
 
-  const cmrParams = _(params)
-    .toPairs()
-    .map(([k, v]) => {
-      if (stacParamsToCmrParams[k]) {
-        const [newName, converter] = stacParamsToCmrParams[k];
-        return [newName, converter(v)];
-      }
-      return [k, v];
-    })
-    .fromPairs()
-    .value();
-
+  const cmrParams = adaptParams(stacParamsToCmrParamsMap, params);
   const granules = await cmr.findGranules(cmrParams);
   return cmrConverter.cmrGranulesToFeatureCollection(event, granules);
 };
 
-const paramParsers = {
-  limit: (v) => parseInt(v, 10),
-  bbox: cmrConverter.parseOrdinateString,
-  time: _.identity
+const stacGetParamMap = {
+  limit: ['limit', (v) => parseInt(v, 10)],
+  bbox: ['bbox', cmrConverter.parseOrdinateString],
+  time: ['time', _.identity]
 };
 
 const stacGetSearch = async (event, parsedPath) => {
   console.log(`stacGetSearch ${JSON.stringify(parsedPath, null, 2)}`);
-  const params = _(event.queryStringParameters)
-    .mapValues(appUtil.firstIfArray)
-    .mapValues((v, k) => {
-      if (paramParsers[k]) {
-        return paramParsers[k](v);
-      }
-      return v;
-    })
-    .value();
+  const params = adaptParams(stacGetParamMap, event.queryStringParameters);
   return stacBaseSearch(event, params);
 };
 
