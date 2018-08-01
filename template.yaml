@@ -8,6 +8,14 @@ Description: >
 Parameters:
   StackNamePrefix:
     Type: String
+  CertificateArn:
+    Type: String
+  DomainName:
+    Type: String
+  HostedZoneName:
+    Type: String
+    AllowedPattern: '.*\.$'
+    ConstraintDescription: Must end with trailing dot `.`
 
 Globals:
   Api:
@@ -39,6 +47,27 @@ Resources:
           Properties:
             Path: /{proxy+}
             Method: ANY
+  APIDomainName:
+    Type: AWS::ApiGateway::DomainName
+    Properties:
+      CertificateArn: !Ref CertificateArn
+      DomainName: !Ref DomainName
+  APIBasePathMapping:
+    Type: AWS::ApiGateway::BasePathMapping
+    Properties:
+      DomainName: !Ref APIDomainName
+      RestApiId: !Ref ServerlessRestApi
+      Stage: Prod
+  APIDomain:
+    Type: AWS::Route53::RecordSetGroup
+    Properties:
+      HostedZoneName: !Ref HostedZoneName
+      RecordSets:
+      - Name: !Ref DomainName
+        Type: A
+        AliasTarget:
+          DNSName: !GetAtt APIDomainName.DistributionDomainName
+          HostedZoneId: Z2FDTNDATAQYW2 # static ID for CloudFront aliases
 
 Outputs:
 
