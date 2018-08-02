@@ -7,10 +7,6 @@ TODO links to STAC API
 ## TODO
 
 * Finish writing the README.
-* Add main URL to the application
-  - Need Kevin's help
-* Put code in E84 repo
-
 
 ## Development
 

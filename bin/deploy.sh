@@ -25,6 +25,9 @@ if [ -z ${STACK_NAME_PREFIX+x} ]; then
   exit 1
 fi
 
+bin/bootstrap.sh
+source config.sh
+
 STACK_NAME="${STACK_NAME_PREFIX}-cmr-stac-api"
 STACK_DEPLOY_BUCKET=${STACK_NAME}
 
@@ -50,7 +53,10 @@ aws cloudformation deploy --template-file ./serverless-output.yml \
 --stack-name "${STACK_NAME}" \
 --capabilities CAPABILITY_IAM \
 --parameter-overrides \
-StackNamePrefix=${STACK_PREFIX}
+StackNamePrefix=${STACK_PREFIX} \
+CertificateArn=${CERTIFICATE_ARN} \
+DomainName=${DOMAIN_NAME} \
+HostedZoneName=${HOSTED_ZONE_NAME}
 
 
 API_URL=$(aws cloudformation describe-stacks \
