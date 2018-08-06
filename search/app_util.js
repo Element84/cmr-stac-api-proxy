@@ -21,8 +21,8 @@ const generateAppUrl = (event, path, queryParams = null) => {
   const host = event.headers.Host;
   const protocol = event.headers['X-Forwarded-Proto'];
   let stageUrlPart = '';
-  if (!host.includes('localhost')) {
-    // If we're running locally the stage isn't part of the URL.
+  if (host.includes('amazonaws.com')) {
+    // Only include stage when hitting a AWS generated URL.
     stageUrlPart = `${event.requestContext.stage}`;
   }
   return buildUrl(`${protocol}://${host}`, {
