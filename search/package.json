@@ -1,11 +1,11 @@
 {
   "name": "search",
   "version": "1.0.0",
-  "description": "hello world sample for NodeJS",
-  "main": "src/index.js",
-  "repository": "https://github.com/aws-samples/cookiecutter-aws-sam-hello-nodejs",
-  "author": "SAM CLI",
-  "license": "MIT",
+  "description": "A lambda that implements the STAC and WFS specifications as a CMR Proxy",
+  "main": "app.js",
+  "repository": "https://github.com/Element84/cmr-stac-api-proxy",
+  "author": "Jason Gilman",
+  "license": "Apache-2.0",
   "dependencies": {
     "ajv": "^6.5.1",
     "axios": "^0.18.0",

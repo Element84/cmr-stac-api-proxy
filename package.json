@@ -6,8 +6,9 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
+  "repository": "https://github.com/Element84/cmr-stac-api-proxy",
   "author": "Jason Gilman",
-  "license": "ISC",
+  "license": "Apache-2.0",
   "devDependencies": {
     "eslint": "^5.0.1",
     "eslint-config-airbnb": "^17.0.0",
