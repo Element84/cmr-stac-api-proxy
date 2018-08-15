@@ -218,21 +218,18 @@ const cmrGranToFeatureGeoJSON = (event, cmrGran) => {
     type: 'Feature',
     id: cmrGran.id,
     geometry: cmrSpatialToGeoJSONGeometry(cmrGran),
-    links: [
-      wfs.createLink(
-        'self',
-        appUtil.generateAppUrl(event,
-          `/collections/${cmrGran.collection_concept_id}/items/${cmrGran.id}`),
-        'Info about this granule'
-      ),
-      wfs.createLink(
-        'parent collection',
-        appUtil.generateAppUrl(event, `/collections/${cmrGran.collection_concept_id}`),
-        'Info about the parent collection'
-      ),
-      wfs.createLink('metadata', cmr.makeCmrSearchUrl(`/concepts/${cmrGran.id}.native`),
-        'Native metadata for granule')
-    ],
+    links: {
+      self: {
+        rel: 'self',
+        href: appUtil.generateAppUrl(event,
+          `/collections/${cmrGran.collection_concept_id}/items/${cmrGran.id}`)
+      },
+      parent: {
+        rel: 'parent',
+        href: appUtil.generateAppUrl(event, `/collections/${cmrGran.collection_concept_id}`)
+      },
+      metadata: wfs.createLink('metadata', cmr.makeCmrSearchUrl(`/concepts/${cmrGran.id}.native`))
+    },
     properties: {
       provider: cmrGran.data_center,
       // TODO this appears to be a bug in the schema. It requires additional properties to be
