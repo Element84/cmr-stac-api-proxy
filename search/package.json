@@ -4,22 +4,26 @@
   "description": "A lambda that implements the STAC and WFS specifications as a CMR Proxy",
   "main": "app.js",
   "repository": "https://github.com/Element84/cmr-stac-api-proxy",
-  "author": "Jason Gilman",
+  "author": "Element 84",
   "license": "Apache-2.0",
   "dependencies": {
     "ajv": "^6.5.1",
-    "axios": "^0.18.0",
+    "axios": "^0.18.1",
     "build-url": "^1.1.2",
-    "js-yaml": "^3.12.0",
-    "lodash": "^4.17.10",
+    "js-yaml": "^3.13.1",
+    "lodash": "^4.17.15",
     "mime-types": "^2.1.19",
     "swagger-ui-dist": "^3.17.5"
   },
   "scripts": {
+    "start": "sls offline",
+    "deploy": "sls deploy",
     "test": "mocha tests/unit/"
   },
   "devDependencies": {
     "chai": "^4.1.2",
-    "mocha": "^5.1.1"
+    "mocha": "^5.1.1",
+    "serverless": "^1.49.0",
+    "serverless-offline": "^5.8.0"
   }
 }

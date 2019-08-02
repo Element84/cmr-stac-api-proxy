@@ -7,14 +7,11 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": "https://github.com/Element84/cmr-stac-api-proxy",
-  "author": "Jason Gilman",
+  "author": "Element 84",
   "license": "Apache-2.0",
   "devDependencies": {
     "eslint": "^5.16.0",
-    "eslint-config-airbnb": "^17.0.0",
-    "eslint-plugin-import": "^2.13.0",
-    "eslint-plugin-jsdoc": "^3.7.1",
-    "eslint-plugin-jsx-a11y": "^6.0.3",
-    "eslint-plugin-react": "^7.10.0"
+    "serverless": "^1.49.0",
+    "serverless-offline": "^5.8.0"
   }
 }
