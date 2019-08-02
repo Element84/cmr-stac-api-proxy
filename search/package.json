@@ -18,6 +18,7 @@
   "scripts": {
     "start": "sls offline",
     "deploy": "sls deploy",
+    "lint": "eslint ./lib/** ./tests/** --fix",
     "test": "mocha tests/unit/"
   },
   "devDependencies": {
