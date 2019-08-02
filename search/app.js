@@ -293,6 +293,7 @@ exports.lambda_handler = async (event, context) => {
       }
     }
     else {
+      // when does not having a response timeout?
       const err = `Could not find matching request handler for ${httpMethod} ${path}`;
       console.log(err);
       return {
