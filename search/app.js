@@ -1,4 +1,3 @@
-/* eslint-disable max-len */
 const _ = require('lodash');
 const fs = require('fs');
 const yaml = require('js-yaml');
@@ -43,12 +42,10 @@ const getDocs = async (event, parsedPath) => {
     // Update the swagger file to be correct for deployed location.
     contents = contents.toString().replace('- <server-location>',
       `- url: '${appUtil.generateAppUrl(event, '')}'`);
-  }
-  else {
+  } else {
     try {
       contents = await fsAsync.readFile(`${__dirname}/node_modules/swagger-ui-dist/${file}`);
-    }
-    catch (err) {
+    } catch (err) {
       console.log(err);
       return makeRawResponse({
         statusCode: 404,
@@ -242,8 +239,7 @@ exports.lambda_handler = async (event, context) => {
             if (path === '') {
               return ['empty', fn, responseSchemaElement];
             }
-          }
-          else {
+          } else {
             const match = pathRegex.exec(path);
             if (match) {
               return [match, fn, responseSchemaElement];
@@ -291,8 +287,7 @@ exports.lambda_handler = async (event, context) => {
           })
         }
       }
-    }
-    else {
+    } else {
       // when does not having a response timeout?
       const err = `Could not find matching request handler for ${httpMethod} ${path}`;
       console.log(err);
@@ -301,8 +296,7 @@ exports.lambda_handler = async (event, context) => {
         body: err
       }
     }
-  }
-  catch (err) {
+  } catch (err) {
     if (_.get(err, 'response.data.errors')) {
       return {
         statusCode: 400,

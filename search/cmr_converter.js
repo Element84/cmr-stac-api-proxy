@@ -16,8 +16,7 @@ const addPointsToBbox = (bbox, points) => {
       n = Math.max(n, lat);
       e = Math.max(e, lon);
       s = Math.min(s, lat);
-    }
-    else {
+    } else {
       [w, n, e, s] = [lon, lat, lon, lat];
     }
   });
@@ -202,7 +201,6 @@ const cmrGranToFeatureGeoJSON = (event, cmrGran) => {
     type: l.type
   });
 
-
   const assets = {};
   if (dataLink) {
     assets.data = linkToAsset(dataLink);
@@ -263,7 +261,7 @@ module.exports = {
   cmrGranToFeatureGeoJSON,
   cmrGranulesToFeatureCollection,
   parseOrdinateString,
-  //For testing
+  // For testing
   _private: {
     addPointsToBbox,
     WHOLE_WORLD_BBOX,
