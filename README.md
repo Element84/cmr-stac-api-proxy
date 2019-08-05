@@ -9,9 +9,7 @@ Deployed at [https://cmr-stac-api.dev.element84.com/](https://cmr-stac-api.dev.e
 ### Prerequisites
 
 * node.js 8.10 (nvm is the best way)
-* Docker
 * AWS CLI
-* [SAM CLI](https://github.com/awslabs/aws-sam-cli)
 
 ### Setup
 
@@ -19,12 +17,13 @@ Run `bin/bootstrap.sh`
 
 ### Running locally
 
-Run `bin/run_local.sh` and then visit http://localhost:3000
+- cd `search`
+- `npm start`
 
 ### Deploying
 
-1. Copy `example_config.sh` to `config.sh` and fill out the values.
-2. Run `bin/deploy.sh`
+- cd `search`
+- `npm run deploy`
 
 ## License
 

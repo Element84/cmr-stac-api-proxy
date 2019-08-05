@@ -1,0 +1,21 @@
+service: cmr-stac-api
+
+provider:
+  name: aws
+  runtime: nodejs8.10
+  stage: dev
+  region: us-east-1
+
+functions:
+  search-api:
+    handler: app.lambda_handler
+    events:
+      - http:
+          path: /
+          method: GET
+      - http:
+          path: /{proxy+}
+          method: any
+
+plugins:
+  - serverless-offline
