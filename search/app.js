@@ -240,7 +240,7 @@ const pathToFunction = [
   [/^\/search\/stac$/, 'POST', stacPostSearch, 'itemCollection']
 ];
 
-exports.lambda_handler = async (event, context, callback) => {
+exports.lambda_handler = async (event, context) => {
   console.log(JSON.stringify(event, null, 2));
 
   try {
@@ -264,68 +264,70 @@ exports.lambda_handler = async (event, context, callback) => {
         return null;
       }).find().value();
 
-    if (potentialMatch) {
-      const [pathMatch, handlerFn, responseSchemaElement] = potentialMatch;
-      const response = await handlerFn(event, pathMatch);
+      if (potentialMatch) {
+        const [pathMatch, handlerFn, responseSchemaElement] = potentialMatch;
+        const response = await handlerFn(event, pathMatch);
 
-      if (response && response._raw) {
-        callback(null, response._raw);
-      } else if (response) {
+        if (response && response._raw) {
+          return response._raw
+        } else if (response) {
         const validator = createSchemaValidator(responseSchemaElement);
         if (!validator(response)) {
           // The response generated is not valid
-          callback(null, {
+          return {
             statusCode: 500,
             body: JSON.stringify({
               body: response,
               msg: 'An invalid body was generated processing this request.',
               errors: validator.errors
             })
-          });
+          }
         }
         // else The response is valid
-        callback(null, {
+        return {
           statusCode: 200,
           headers: {
             'Content-Type': 'application/json',
             'Access-Control-Allow-Origin': '*'
           },
           body: JSON.stringify(response)
-        });
-      } else {
+        }
+      }
+      else {
         // response is null
-        callback(null, {
+        return {
           statusCode: 404,
           body: JSON.stringify({
             msg: `Could not find ${path}`
           })
-        });
+        }
       }
     } else {
+      // when does not having a response timeout?
       const err = `Could not find matching request handler for ${httpMethod} ${path}`;
       console.log(err);
-      callback(null, {
+      return {
         statusCode: 404,
         body: err
-      });
+      }
     }
   } catch (err) {
     // TODO: remove lodash
     if (_.get(err, 'response.data.errors')) {
-      callback(null, {
+      return {
         statusCode: 400,
         headers: { 'content-type': 'application/json' },
         body: JSON.stringify(err.response.data.errors)
-      });
+      }
     } else {
-      console.log(err);
-      callback(null, {
+      console.log(err)
+      return {
         statusCode: 500,
         body: 'Internal server error'
-      });
+      }
     }
   }
-};
+}
 
 // const _ = require('lodash');
 // const cmr = require('./cmr');
@@ -352,66 +354,3 @@ exports.lambda_handler = async (event, context, callback) => {
 // coll = collections[0]
 //
 // cmrConverter._private.cmrCollSpatialToExtents(coll)
-
-
-
-
-
-
-// { body: null,
-//   headers:
-//    { Host: 'localhost:3000',
-//      Connection: 'keep-alive',
-//      'Upgrade-Insecure-Requests': '1',
-//      'User-Agent':
-//       'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/75.0.3770.142 Safari/537.36',
-//      Accept:
-//       'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3',
-//      'Accept-Encoding': 'gzip, deflate, br',
-//      'Accept-Language': 'en-US,en;q=0.9',
-//      Cookie: 'io=lvBrGlgeRxZ1SdB5AAAC' },
-//   httpMethod: 'GET',
-//   multiValueHeaders:
-//    { Host: [ 'localhost:3000' ],
-//      Connection: [ 'keep-alive' ],
-//      'Upgrade-Insecure-Requests': [ '1' ],
-//      'User-Agent':
-//       [ 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/75.0.3770.142 Safari/537.36' ],
-//      Accept:
-//       [ 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3' ],
-//      'Accept-Encoding': [ 'gzip, deflate, br' ],
-//      'Accept-Language': [ 'en-US,en;q=0.9' ],
-//      Cookie: [ 'io=lvBrGlgeRxZ1SdB5AAAC' ] },
-//   multiValueQueryStringParameters: null,
-//   path: '/',
-//   pathParameters: null,
-//   queryStringParameters: null,
-//   requestContext:
-//    { accountId: 'offlineContext_accountId',
-//      apiId: 'offlineContext_apiId',
-//      authorizer:
-//       { principalId: 'offlineContext_authorizer_principalId',
-//         claims: undefined },
-//      httpMethod: 'GET',
-//      identity:
-//       { accountId: 'offlineContext_accountId',
-//         apiKey: 'offlineContext_apiKey',
-//         caller: 'offlineContext_caller',
-//         cognitoAuthenticationProvider: 'offlineContext_cognitoAuthenticationProvider',
-//         cognitoAuthenticationType: 'offlineContext_cognitoAuthenticationType',
-//         cognitoIdentityId: 'offlineContext_cognitoIdentityId',
-//         cognitoIdentityPoolId: 'offlineContext_cognitoIdentityPoolId',
-//         sourceIp: '127.0.0.1',
-//         user: 'offlineContext_user',
-//         userAgent:
-//          'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/75.0.3770.142 Safari/537.36',
-//         userArn: 'offlineContext_userArn' },
-//      protocol: 'HTTP/1.1',
-//      requestId: 'offlineContext_requestId_cjz03b0bf0001pbyock8p6x3i',
-//      requestTimeEpoch: 1565112051903,
-//      resourceId: 'offlineContext_resourceId',
-//      resourcePath: '/',
-//      stage: 'dev' },
-//   resource: '/',
-//   stageVariables: null,
-//   isOffline: true }
