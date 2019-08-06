@@ -7,7 +7,6 @@ const buildUrl = require('build-url');
 // https://github.com/Element84/catalog-api-spec/blob/dev/implementations/e84/src/e84_api_impl/search_service.clj
 // has mappings from JSON response to GeoJSON features
 
-
 const makeCmrSearchUrl = (path, queryParams = null) => buildUrl(
   'https://cmr.earthdata.nasa.gov/search', { path, queryParams }
 );
