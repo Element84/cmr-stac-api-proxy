@@ -249,13 +249,13 @@ exports.lambda_handler = async (event, context) => {
         return null;
       }).find().value();
 
-      if (potentialMatch) {
-        const [pathMatch, handlerFn, responseSchemaElement] = potentialMatch;
-        const response = await handlerFn(event, pathMatch);
+    if (potentialMatch) {
+      const [pathMatch, handlerFn, responseSchemaElement] = potentialMatch;
+      const response = await handlerFn(event, pathMatch);
 
-        if (response && response._raw) {
-          return response._raw
-        } else if (response) {
+      if (response && response._raw) {
+        return response._raw;
+      } else if (response) {
         const validator = createSchemaValidator(responseSchemaElement);
         if (!validator(response)) {
           // The response generated is not valid
@@ -266,7 +266,7 @@ exports.lambda_handler = async (event, context) => {
               msg: 'An invalid body was generated processing this request.',
               errors: validator.errors
             })
-          }
+          };
         }
         // else The response is valid
         return {
@@ -276,16 +276,15 @@ exports.lambda_handler = async (event, context) => {
             'Access-Control-Allow-Origin': '*'
           },
           body: JSON.stringify(response)
-        }
-      }
-      else {
+        };
+      } else {
         // response is null
         return {
           statusCode: 404,
           body: JSON.stringify({
             msg: `Could not find ${path}`
           })
-        }
+        };
       }
     } else {
       // when does not having a response timeout?
@@ -294,7 +293,7 @@ exports.lambda_handler = async (event, context) => {
       return {
         statusCode: 404,
         body: err
-      }
+      };
     }
   } catch (err) {
     if (_.get(err, 'response.data.errors')) {
@@ -302,16 +301,16 @@ exports.lambda_handler = async (event, context) => {
         statusCode: 400,
         headers: { 'content-type': 'application/json' },
         body: JSON.stringify(err.response.data.errors)
-      }
+      };
     } else {
-      console.log(err)
+      console.log(err);
       return {
         statusCode: 500,
         body: 'Internal server error'
-      }
+      };
     }
   }
-}
+};
 
 // const _ = require('lodash');
 // const cmr = require('./cmr');
@@ -338,5 +337,3 @@ exports.lambda_handler = async (event, context) => {
 // coll = collections[0]
 //
 // cmrConverter._private.cmrCollSpatialToExtents(coll)
-
-
