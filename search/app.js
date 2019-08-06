@@ -14,9 +14,11 @@ const swaggerFileContents = fs.readFileSync('WFS3core+STAC.yaml');
 const swagger = yaml.safeLoad(swaggerFileContents);
 
 const createSchemaValidator = (schemaElement) => {
-  const schema = _.merge({
-    components: swagger.components
-  }, swagger.components.schemas[schemaElement]);
+  // TODO: remove lodash
+  const schema = Object.assign({}, swagger.components.schemas[schemaElement])
+  // const schema = _.merge({
+  //   components: swagger.components
+  // }, swagger.components.schemas[schemaElement]);
 
   return ajv.compile(schema);
 };
@@ -74,7 +76,9 @@ const getDocs = async (event, parsedPath) => {
 
 const getRoot = async (event, parsedPath) => {
   console.log(`getRoot ${JSON.stringify(parsedPath, null, 2)}`);
-  const accept = _.get(event, 'headers.Accept', 'application/json');
+  // TODO: remove lodash
+  const accept = Object.values(event.headers.Accept,)
+  // const accept = _.get(event, 'headers.Accept', 'application/json');
   if (accept.includes('html')) {
     // Redirect root application to /docs/index.html
     return makeRawResponse({
@@ -110,6 +114,7 @@ const getConformance = async (event, parsedPath) => {
 };
 
 const wfsParamsToCmrParamsMap = {
+  // TODO: remove lodash
   bbox: ['bounding_box', _.identity],
   time: ['temporal', _.identity],
   limit: ['page_size', _.identity]
@@ -136,7 +141,9 @@ const getCollections = async (event, parsedPath) => {
     links: [
       wfs.createLink('self', appUtil.generateAppUrl(event, '/collections'), 'this document')
     ],
-    collections: _.map(collections, (coll) => cmrConverter.cmrCollToWFSColl(event, coll))
+    // TODO: remove lodash
+    collections: collections.map(coll => cmrConverter.cmrCollToWFSColl(event, coll))
+    // collections: _.map(collections, (coll) => cmrConverter.cmrCollToWFSColl(event, coll))
   };
 };
 
@@ -153,13 +160,17 @@ const getCollection = async (event, parsedPath) => {
 const getGranules = async (event, parsedPath) => {
   console.log(`getGranules ${JSON.stringify(parsedPath, null, 2)}`);
   const conceptId = parsedPath[1];
+  // TODO: remove lodash
+  const params = Object.assign()
   const params = _.merge(
     adaptParams(wfsParamsToCmrParamsMap, event.queryStringParameters),
     { collection_concept_id: conceptId }
   );
   const granules = await cmr.findGranules(params);
   return {
-    features: _.map(granules, (gran) => cmrConverter.cmrGranToFeatureGeoJSON(event, gran))
+    // TODO: remove lodash
+    features: granules.map(gran => cmrConverter.cmrGranToFeatureGeoJSON(event, gran))
+    // features: _.map(granules, (gran) => cmrConverter.cmrGranToFeatureGeoJSON(event, gran))
   };
 };
 
@@ -177,7 +188,9 @@ const getGranule = async (event, parsedPath) => {
 const stacParamsToCmrParamsMap = {
   bbox: ['bounding_box', (v) => v.join(',')],
   time: ['temporal', _.identity],
-  intersects: ['polygon', (v) => _.flattenDeep(_.first(v.coordinates)).join(',')],
+  // TODO: remove lodash
+  intersects: ['polygon', (v).flat().first(v.coordinates).join(',')],
+  // intersects: ['polygon', (v) => _.flattenDeep(_.first(v.coordinates)).join(',')],
   limit: ['page_size', _.identity],
   collectionId: ['collection_concept_id', _.identity]
 };
@@ -194,6 +207,7 @@ const stacBaseSearch = async (event, params) => {
 const stacGetParamMap = {
   limit: ['limit', (v) => parseInt(v, 10)],
   bbox: ['bbox', cmrConverter.parseOrdinateString],
+  // TODO: remove lodash
   time: ['time', _.identity]
 };
 
@@ -232,6 +246,7 @@ exports.lambda_handler = async (event, context, callback) => {
   try {
     const path = event.path.replace(/\/$/, ''); // Remove last slash
     const { httpMethod } = event.requestContext;
+    // TODO: remove lodash
     const potentialMatch = _.chain(pathToFunction)
       .map(([pathRegex, matchHttpMethod, fn, responseSchemaElement]) => {
         if (matchHttpMethod === httpMethod) {
@@ -295,6 +310,7 @@ exports.lambda_handler = async (event, context, callback) => {
       });
     }
   } catch (err) {
+    // TODO: remove lodash
     if (_.get(err, 'response.data.errors')) {
       callback(null, {
         statusCode: 400,
@@ -336,3 +352,66 @@ exports.lambda_handler = async (event, context, callback) => {
 // coll = collections[0]
 //
 // cmrConverter._private.cmrCollSpatialToExtents(coll)
+
+
+
+
+
+
+// { body: null,
+//   headers:
+//    { Host: 'localhost:3000',
+//      Connection: 'keep-alive',
+//      'Upgrade-Insecure-Requests': '1',
+//      'User-Agent':
+//       'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/75.0.3770.142 Safari/537.36',
+//      Accept:
+//       'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3',
+//      'Accept-Encoding': 'gzip, deflate, br',
+//      'Accept-Language': 'en-US,en;q=0.9',
+//      Cookie: 'io=lvBrGlgeRxZ1SdB5AAAC' },
+//   httpMethod: 'GET',
+//   multiValueHeaders:
+//    { Host: [ 'localhost:3000' ],
+//      Connection: [ 'keep-alive' ],
+//      'Upgrade-Insecure-Requests': [ '1' ],
+//      'User-Agent':
+//       [ 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/75.0.3770.142 Safari/537.36' ],
+//      Accept:
+//       [ 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3' ],
+//      'Accept-Encoding': [ 'gzip, deflate, br' ],
+//      'Accept-Language': [ 'en-US,en;q=0.9' ],
+//      Cookie: [ 'io=lvBrGlgeRxZ1SdB5AAAC' ] },
+//   multiValueQueryStringParameters: null,
+//   path: '/',
+//   pathParameters: null,
+//   queryStringParameters: null,
+//   requestContext:
+//    { accountId: 'offlineContext_accountId',
+//      apiId: 'offlineContext_apiId',
+//      authorizer:
+//       { principalId: 'offlineContext_authorizer_principalId',
+//         claims: undefined },
+//      httpMethod: 'GET',
+//      identity:
+//       { accountId: 'offlineContext_accountId',
+//         apiKey: 'offlineContext_apiKey',
+//         caller: 'offlineContext_caller',
+//         cognitoAuthenticationProvider: 'offlineContext_cognitoAuthenticationProvider',
+//         cognitoAuthenticationType: 'offlineContext_cognitoAuthenticationType',
+//         cognitoIdentityId: 'offlineContext_cognitoIdentityId',
+//         cognitoIdentityPoolId: 'offlineContext_cognitoIdentityPoolId',
+//         sourceIp: '127.0.0.1',
+//         user: 'offlineContext_user',
+//         userAgent:
+//          'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/75.0.3770.142 Safari/537.36',
+//         userArn: 'offlineContext_userArn' },
+//      protocol: 'HTTP/1.1',
+//      requestId: 'offlineContext_requestId_cjz03b0bf0001pbyock8p6x3i',
+//      requestTimeEpoch: 1565112051903,
+//      resourceId: 'offlineContext_resourceId',
+//      resourcePath: '/',
+//      stage: 'dev' },
+//   resource: '/',
+//   stageVariables: null,
+//   isOffline: true }
