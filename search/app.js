@@ -115,10 +115,11 @@ const getConformance = async (event, parsedPath) => {
 
 const wfsParamsToCmrParamsMap = {
   // TODO: remove lodash
-  bbox: ['bounding_box', _.identity],
-  time: ['temporal', _.identity],
-  limit: ['page_size', _.identity]
+  bbox: ['bounding_box', (v) => v],
+  time: ['temporal', (v) => v],
+  limit: ['page_size', (v) => v]
 };
+
 
 const adaptParams = (paramConverterMap, params) => _(params)
   .mapValues(appUtil.firstIfArray)
@@ -161,11 +162,11 @@ const getGranules = async (event, parsedPath) => {
   console.log(`getGranules ${JSON.stringify(parsedPath, null, 2)}`);
   const conceptId = parsedPath[1];
   // TODO: remove lodash
-  const params = Object.assign()
-  const params = _.merge(
-    adaptParams(wfsParamsToCmrParamsMap, event.queryStringParameters),
-    { collection_concept_id: conceptId }
-  );
+  const params = Object.assign(adaptParams(wfsParamsToCmrParamsMap, event.queryStringParameters), { collection_concept_id: conceptId })
+  // const params = _.merge(
+  //   adaptParams(wfsParamsToCmrParamsMap, event.queryStringParameters),
+  //   { collection_concept_id: conceptId }
+  // );
   const granules = await cmr.findGranules(params);
   return {
     // TODO: remove lodash
@@ -187,12 +188,12 @@ const getGranule = async (event, parsedPath) => {
 
 const stacParamsToCmrParamsMap = {
   bbox: ['bounding_box', (v) => v.join(',')],
-  time: ['temporal', _.identity],
+  time: ['temporal', (v) => v],
   // TODO: remove lodash
-  intersects: ['polygon', (v).flat().first(v.coordinates).join(',')],
+  intersects: ['polygon', (v) => v.flat().first(v.coordinates).join(',')],
   // intersects: ['polygon', (v) => _.flattenDeep(_.first(v.coordinates)).join(',')],
-  limit: ['page_size', _.identity],
-  collectionId: ['collection_concept_id', _.identity]
+  limit: ['page_size', (v) => v],
+  collectionId: ['collection_concept_id', (v) => v]
 };
 
 const stacBaseSearch = async (event, params) => {
@@ -208,7 +209,7 @@ const stacGetParamMap = {
   limit: ['limit', (v) => parseInt(v, 10)],
   bbox: ['bbox', cmrConverter.parseOrdinateString],
   // TODO: remove lodash
-  time: ['time', _.identity]
+  time: ['time', (v) => v]
 };
 
 const stacGetSearch = async (event, parsedPath) => {
@@ -247,7 +248,8 @@ exports.lambda_handler = async (event, context) => {
     const path = event.path.replace(/\/$/, ''); // Remove last slash
     const { httpMethod } = event.requestContext;
     // TODO: remove lodash
-    const potentialMatch = _.chain(pathToFunction)
+    // const potentialMatch = _.chain(pathToFunction)
+    const potentialMatch = pathToFunction
       .map(([pathRegex, matchHttpMethod, fn, responseSchemaElement]) => {
         if (matchHttpMethod === httpMethod) {
           if (pathRegex === 'empty') {
