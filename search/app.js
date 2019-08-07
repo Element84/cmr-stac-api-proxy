@@ -14,12 +14,7 @@ const swaggerFileContents = fs.readFileSync('WFS3core+STAC.yaml');
 const swagger = yaml.safeLoad(swaggerFileContents);
 
 const createSchemaValidator = (schemaElement) => {
-  // TODO: remove lodash
-  const schema = Object.assign({}, swagger.components.schemas[schemaElement])
-  // const schema = _.merge({
-  //   components: swagger.components
-  // }, swagger.components.schemas[schemaElement]);
-
+  const schema = Object.assign({}, {components: swagger.components}, swagger.components.schemas[schemaElement])
   return ajv.compile(schema);
 };
 
@@ -114,7 +109,6 @@ const getConformance = async (event, parsedPath) => {
 };
 
 const wfsParamsToCmrParamsMap = {
-  // TODO: remove lodash
   bbox: ['bounding_box', (v) => v],
   time: ['temporal', (v) => v],
   limit: ['page_size', (v) => v]
@@ -142,9 +136,7 @@ const getCollections = async (event, parsedPath) => {
     links: [
       wfs.createLink('self', appUtil.generateAppUrl(event, '/collections'), 'this document')
     ],
-    // TODO: remove lodash
     collections: collections.map(coll => cmrConverter.cmrCollToWFSColl(event, coll))
-    // collections: _.map(collections, (coll) => cmrConverter.cmrCollToWFSColl(event, coll))
   };
 };
 
@@ -161,17 +153,10 @@ const getCollection = async (event, parsedPath) => {
 const getGranules = async (event, parsedPath) => {
   console.log(`getGranules ${JSON.stringify(parsedPath, null, 2)}`);
   const conceptId = parsedPath[1];
-  // TODO: remove lodash
-  const params = Object.assign(adaptParams(wfsParamsToCmrParamsMap, event.queryStringParameters), { collection_concept_id: conceptId })
-  // const params = _.merge(
-  //   adaptParams(wfsParamsToCmrParamsMap, event.queryStringParameters),
-  //   { collection_concept_id: conceptId }
-  // );
+  const params = Object.assign({}, adaptParams(wfsParamsToCmrParamsMap, event.queryStringParameters), { collection_concept_id: conceptId })
   const granules = await cmr.findGranules(params);
   return {
-    // TODO: remove lodash
     features: granules.map(gran => cmrConverter.cmrGranToFeatureGeoJSON(event, gran))
-    // features: _.map(granules, (gran) => cmrConverter.cmrGranToFeatureGeoJSON(event, gran))
   };
 };
 
@@ -208,7 +193,6 @@ const stacBaseSearch = async (event, params) => {
 const stacGetParamMap = {
   limit: ['limit', (v) => parseInt(v, 10)],
   bbox: ['bbox', cmrConverter.parseOrdinateString],
-  // TODO: remove lodash
   time: ['time', (v) => v]
 };
 
