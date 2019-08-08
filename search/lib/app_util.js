@@ -19,7 +19,7 @@ const extractParam = (queryStringParams, param, defaultVal = null) => {
 
 const generateAppUrl = (event, path, queryParams = null) => {
   const host = event.headers.Host;
-  const protocol = event.headers['X-Forwarded-Proto'];
+  const protocol = event.headers['X-Forwarded-Proto'] || 'http';
   let stageUrlPart = '';
   if (host.includes('amazonaws.com')) {
     // Only include stage when hitting a AWS generated URL.

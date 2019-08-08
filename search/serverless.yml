@@ -8,7 +8,7 @@ provider:
 
 functions:
   search-api:
-    handler: app.lambda_handler
+    handler: index.handler
     events:
       - http:
           path: /
