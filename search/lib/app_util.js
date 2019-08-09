@@ -37,6 +37,21 @@ const createLink = (rel, href, title, type = 'application/json') => ({
   href, rel, type, title
 });
 
+const makeRawResponse = (content) => ({ _raw: content });
+
+const adaptParams = (paramConverterMap, params) => _(params)
+  .mapValues(firstIfArray)
+  .toPairs()
+  .map(([k, v]) => {
+    if (paramConverterMap[k]) {
+      const [newName, converter] = paramConverterMap[k];
+      return [newName, converter(v)];
+    }
+    return [k, v];
+  })
+  .fromPairs()
+  .value();
+
 module.exports = {
   firstIfArray,
   extractParam,
@@ -47,5 +62,7 @@ module.exports = {
   },
   fsAsync: {
     readFile: util.promisify(fs.readFile)
-  }
+  },
+  makeRawResponse,
+  adaptParams
 };

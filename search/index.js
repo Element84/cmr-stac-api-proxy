@@ -2,7 +2,8 @@ const express = require('express');
 const awsServerless = require('aws-serverless-express');
 const awsServerlessMiddleware = require('aws-serverless-express/middleware');
 
-const appFunctions = require('./lib/app');
+const { createSchemaValidator } = require('./lib/validator');
+const { getRoot, getDocs, getConformance, collections, stac } = require('./lib/routes');
 const { errorHandler } = require('./lib/error-handler');
 
 const application = express();
@@ -13,10 +14,10 @@ function wrapper (handlerFunction, responseSchemaElement) {
       const response = await handlerFunction(req, res);
 
       if (response && response._raw) {
-        Object.keys(response._raw.headers).forEach((key) => res.set(key, response._raw.headers[key]));
+        Object.keys(response._raw.headers || {}).forEach((key) => res.set(key, response._raw.headers[key]));
         res.status(response._raw.statusCode).send(response._raw.body);
       } else if (response) {
-        const validator = appFunctions.createSchemaValidator(responseSchemaElement);
+        const validator = createSchemaValidator(responseSchemaElement);
         if (!validator(response)) {
           res.status(500).json({
             body: response,
@@ -37,15 +38,15 @@ function wrapper (handlerFunction, responseSchemaElement) {
 
 application.use(awsServerlessMiddleware.eventContext());
 
-application.get('/', wrapper(appFunctions.getRoot, 'root'));
-application.get('/docs/*', wrapper(appFunctions.getDocs));
-application.get('/conformance', wrapper(appFunctions.getConformance, 'req-classes'));
-application.get('/collections', wrapper(appFunctions.getCollections, 'content'));
-application.get('/collections/:collectionId', wrapper(appFunctions.getCollection, 'collectionInfo'));
-application.get('/collections/:collectionId/items', wrapper(appFunctions.getGranule, 'featureCollectionGeoJSON'));
-application.get('/collections/:collectionId/items/:itemId', wrapper(appFunctions.getGranule, 'featureGeoJSON'));
-application.get('/search/stac', wrapper(appFunctions.stacGetSearch, 'itemCollection'));
-application.post('/search/stac', wrapper(appFunctions.stacPostSearch, 'itemCollection'));
+application.get('/', wrapper(getRoot, 'root'));
+application.get('/docs/*', wrapper(getDocs));
+application.get('/conformance', wrapper(getConformance, 'req-classes'));
+application.get('/collections', wrapper(collections.getCollections, 'content'));
+application.get('/collections/:collectionId', wrapper(collections.getCollection, 'collectionInfo'));
+application.get('/collections/:collectionId/items', wrapper(collections.getGranule, 'featureCollectionGeoJSON'));
+application.get('/collections/:collectionId/items/:itemId', wrapper(collections.getGranule, 'featureGeoJSON'));
+application.get('/search/stac', wrapper(stac.stacGetSearch, 'itemCollection'));
+application.post('/search/stac', wrapper(stac.stacPostSearch, 'itemCollection'));
 
 application.use(errorHandler);
 
