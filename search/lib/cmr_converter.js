@@ -1,6 +1,5 @@
 const _ = require('lodash');
-const appUtil = require('./app_util');
-const wfs = appUtil.wfs;
+const { wfs, generateAppUrl, extractParam, generateSelfUrl } = require('./util');
 const cmr = require('./cmr');
 
 const WHOLE_WORLD_BBOX = [-180, 90, 180, -90];
@@ -83,7 +82,7 @@ const stacSearchWithCurrentParams = (event, collId) => {
   newParams.collectionId = collId;
   // The provider param isn't needed once the colleciton id is set.
   delete newParams.provider;
-  return appUtil.generateAppUrl(event, '/search/stac', newParams);
+  return generateAppUrl(event, '/search/stac', newParams);
 };
 
 const cmrGranuleSearchWithCurrentParams = (event, collId) => {
@@ -100,13 +99,13 @@ const cmrCollToWFSColl = (event, cmrColl) => ({
   title: cmrColl.dataset_id,
   description: cmrColl.summary,
   links: [
-    wfs.createLink('self', appUtil.generateAppUrl(event, `/collections/${cmrColl.id}`),
+    wfs.createLink('self', generateAppUrl(event, `/collections/${cmrColl.id}`),
       'Info about this collection'),
     wfs.createLink('stac', stacSearchWithCurrentParams(event, cmrColl.id),
       'STAC Search this collection'),
     wfs.createLink('cmr', cmrGranuleSearchWithCurrentParams(event, cmrColl.id),
       'CMR Search this collection'),
-    wfs.createLink('items', appUtil.generateAppUrl(event, `/collections/${cmrColl.id}/items`),
+    wfs.createLink('items', generateAppUrl(event, `/collections/${cmrColl.id}/items`),
       'Granules in this collection'),
     wfs.createLink('overview', cmr.makeCmrSearchUrl(`/concepts/${cmrColl.id}.html`),
       'HTML metadata for collection'),
@@ -219,12 +218,12 @@ const cmrGranToFeatureGeoJSON = (event, cmrGran) => {
     links: {
       self: {
         rel: 'self',
-        href: appUtil.generateAppUrl(event,
+        href: generateAppUrl(event,
           `/collections/${cmrGran.collection_concept_id}/items/${cmrGran.id}`)
       },
       parent: {
         rel: 'parent',
-        href: appUtil.generateAppUrl(event, `/collections/${cmrGran.collection_concept_id}`)
+        href: generateAppUrl(event, `/collections/${cmrGran.collection_concept_id}`)
       },
       metadata: wfs.createLink('metadata', cmr.makeCmrSearchUrl(`/concepts/${cmrGran.id}.native`))
     },
@@ -240,17 +239,17 @@ const cmrGranToFeatureGeoJSON = (event, cmrGran) => {
 };
 
 const cmrGranulesToFeatureCollection = (event, cmrGrans) => {
-  const currPage = parseInt(appUtil.extractParam(event.queryStringParameters, 'page_num', '1'), 10);
+  const currPage = parseInt(extractParam(event.queryStringParameters, 'page_num', '1'), 10);
   const nextPage = currPage + 1;
   const newParams = _.clone(event.queryStringParameters) || {};
   newParams.page_num = nextPage;
-  const nextResultsLink = appUtil.generateAppUrl(event, event.path, newParams);
+  const nextResultsLink = generateAppUrl(event, event.path, newParams);
 
   return {
     type: 'FeatureCollection',
     features: _.map(cmrGrans, (g) => cmrGranToFeatureGeoJSON(event, g)),
     links: {
-      self: appUtil.generateSelfUrl(event),
+      self: generateSelfUrl(event),
       next: nextResultsLink
     }
   };

@@ -23,7 +23,7 @@ const generateAppUrl = (event, path, queryParams = null) => {
   let stageUrlPart = '';
   if (host.includes('amazonaws.com')) {
     // Only include stage when hitting a AWS generated URL.
-    stageUrlPart = `${event.requestContext.stage}`;
+    stageUrlPart = `${event.requestContext.stage}/`;
   }
   return buildUrl(`${protocol}://${host}`, {
     path: `${stageUrlPart}${path}`,
