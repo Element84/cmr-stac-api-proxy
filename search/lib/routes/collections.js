@@ -1,5 +1,5 @@
 const _ = require('lodash');
-const { adaptParams, generateAppUrl, wfs } = require('../app_util');
+const { adaptParams, generateAppUrl, wfs } = require('../util');
 const cmr = require('../cmr');
 const cmrConverter = require('../cmr_converter');
 

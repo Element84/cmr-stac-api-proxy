@@ -2,7 +2,7 @@ const fs = require('fs');
 const mime = require('mime-types');
 const _ = require('lodash');
 
-const { makeRawResponse, generateAppUrl, fsAsync, wfs } = require('../app_util');
+const { makeRawResponse, generateAppUrl, fsAsync, wfs } = require('../util');
 const collections = require('./collections');
 const stac = require('./stac');
 
