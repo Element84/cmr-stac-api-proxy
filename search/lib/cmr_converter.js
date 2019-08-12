@@ -34,11 +34,8 @@ const mergeBoxes = (box1, box2) => {
   ];
 };
 
-// const parseOrdinateString = (numStr) => numStr.map(parseFloat(n => n.split(/\s|,/))) 
+const parseOrdinateString = (numStr) => numStr.split(/\s|,/).map(parseFloat) 
 
-const parseOrdinateString = (numStr) => _.map(numStr.split(/\s|,/), parseFloat);
-
-// can possibly do this using reduce
 const pointStringToPoints = (pointStr) => _.chunk(parseOrdinateString(pointStr), 2);
 
 // TODO this needs to be tested
@@ -49,18 +46,15 @@ const cmrCollSpatialToExtents = (cmrColl) => {
     // an array of arrays of strings containing rings
     // [["lat1 lon1 lat2 lon2 ..."]]
     // In the inner most array all you need is the first string. That's the outer boundary
-    bbox = _.chain(cmrColl.polygons)
+    bbox = cmrColl.polygons
       .map((rings) => rings[0])
       .map(pointStringToPoints)
       .reduce(addPointsToBbox, bbox)
-      .value();
   }
   if (cmrColl.points) {
     // an array of strings of "lat lon"
-    // [ "53.63 -106.2" ]
-    // TODO remove lodash
-    // const points = cmrColl.points.map(c => parseOrdinateString(c))
-    const points = _.map(cmrColl.points, parseOrdinateString);
+    // [ "53.63 -106.2" 
+    const points = cmrColl.points.map(parseOrdinateString)
     bbox = addPointsToBbox(bbox, points);
   }
   if (cmrColl.lines) {
@@ -70,10 +64,8 @@ const cmrCollSpatialToExtents = (cmrColl) => {
     // a list of strings of south west north east
     // TODO can cross antimeridian
     // [ "-14.3601 -176.6525 64.823 151.78372" ]
-    // TODO remove lodash
-    // bbox = cmrColl.boxes.reduce()
-    bbox = _.reduce(cmrColl.boxes, (box, boxStr) => mergeBoxes(box, parseOrdinateString(boxStr)),
-      bbox);
+    
+    bbox = cmrColl.boxes.reduce((box, boxStr) => mergeBoxes(box, parseOrdinateString(boxStr)), bbox)
   }
   if (_.isNull(bbox)) {
     // whole world bbox
@@ -86,7 +78,6 @@ const cmrCollSpatialToExtents = (cmrColl) => {
 
 const stacSearchWithCurrentParams = (event, collId) => {
   const newParams = [...event.queryStringParameters] || {}
-  // const newParams = _.clone(event.queryStringParameters) || {};
   newParams.collectionId = collId;
   // The provider param isn't needed once the colleciton id is set.
   delete newParams.provider;
@@ -95,7 +86,6 @@ const stacSearchWithCurrentParams = (event, collId) => {
 
 const cmrGranuleSearchWithCurrentParams = (event, collId) => {
   const newParams = [...event.queryStringParameters] || {}
-  // const newParams = _.clone(event.queryStringParameters) || {};
   newParams.collection_concept_id = collId;
   // The provider param isn't needed once the colleciton id is set.
   delete newParams.collectionId;
@@ -136,6 +126,7 @@ const cmrCollToWFSColl = (event, cmrColl) => ({
 
 const cmrPolygonToGeoJsonPolygon = (polygon) => {
   // TODO: remove lodash
+  // take internal map assign it and pass it to the second map
   const rings = _.map(polygon,
     (ringStr) => _.map(pointStringToPoints(ringStr), ([lat, lon]) => [lon, lat]));
   return {
@@ -158,23 +149,19 @@ const cmrBoxToGeoJsonPolygon = (box) => {
   };
 };
 
-// TODO remove lodash
-
 const cmrSpatialToGeoJSONGeometry = (cmrGran) => {
   let geometry = [];
   if (cmrGran.polygons) {
-    // geometry = geometry.concat(cmrGran.polygons.map())
-    geometry = geometry.concat(_.map(cmrGran.polygons, cmrPolygonToGeoJsonPolygon));
+    geometry = geometry.concat(cmrGran.polygons.map(cmrPolygonToGeoJsonPolygon))
   }
   if (cmrGran.boxes) {
-    // geometry = geometry.concat(cmrGran.boxes.map())
-    geometry = geometry.concat(_.map(cmrGran.boxes, cmrBoxToGeoJsonPolygon));
+    geometry = geometry.concat(cmrGran.boxes.map(cmrBoxToGeoJsonPolygon))
   }
   if (cmrGran.points) {
-    geometry = geometry.concat(_.map(cmrGran.points, (ps) => {
+    geometry = geometry.concat(cmrGran.points.map((ps) => {
       const [lat, lon] = parseOrdinateString(ps);
       return { type: 'Point', coordinates: [lon, lat] };
-    }));
+    }))
   }
   if (geometry.length === 0) {
     throw new Error(`Unknown spatial ${JSON.stringify(cmrGran)}`);
@@ -197,16 +184,15 @@ const cmrGranToFeatureGeoJSON = (event, cmrGran) => {
   if (cmrGran.time_end) {
     datetime = `${datetime}/${cmrGran.time_end}`;
   }
-
-  //TODO remove lodash
+  
   const dataLink = _.first(
-    _.filter(cmrGran.links, (l) => l.rel === DATA_REL && !l.inherited)
+    cmrGran.links.filter(l => l.rel === DATA_REL && !l.inherited)
   );
   const browseLink = _.first(
-    _.filter(cmrGran.links, (l) => l.rel === BROWSE_REL)
+    cmrGran.links.filter(l => l.rel === BROWSE_REL)
   );
   const opendapLink = _.first(
-    _.filter(cmrGran.links, (l) => l.rel === DOC_REL && !l.inherited && l.href.includes('opendap'))
+    cmrGran.links.filter(l => l.rel === DOC_REL && !l.inherited && l.href.includes('opendap'))
   );
 
   const linkToAsset = (l) => ({
@@ -256,17 +242,13 @@ const cmrGranToFeatureGeoJSON = (event, cmrGran) => {
 const cmrGranulesToFeatureCollection = (event, cmrGrans) => {
   const currPage = parseInt(extractParam(event.queryStringParameters, 'page_num', '1'), 10);
   const nextPage = currPage + 1;
-  // TODO remove lodash
-  const newParams = [...event.queryStringParameters] || {}
-  // const newParams = _.clone(event.queryStringParameters) || {};
+  const newParams = {...event.queryStringParameters} || {}
   newParams.page_num = nextPage;
   const nextResultsLink = generateAppUrl(event, event.path, newParams);
 
   return {
     type: 'FeatureCollection',
-    // TODO remove lodash
-    features: cmrGrans.map(g => cmrGran(event, g)),
-    // features: _.map(cmrGrans, (g) => cmrGranToFeatureGeoJSON(event, g)),
+    features: cmrGrans.map(g => cmrGranToFeatureGeoJSON(event, g)),
     links: {
       self: generateSelfUrl(event),
       next: nextResultsLink

@@ -21,10 +21,8 @@ const cmrSearch = async (url, params) => {
 };
 
 const findCollections = async (params = {}) => {
-  const response = await cmrSearch(makeCmrSearchUrl('/collections.json'),
   // TODO: remove lodash
-  // Object.assign({}, {has_granules: true, downloadable: true}, params)
-    _.merge({ has_granules: true, downloadable: true }, params));
+  const response = await cmrSearch(makeCmrSearchUrl('/collections.json'), Object.assign({}, {has_granules: true, downloadable: true}, params))
   return response.data.feed.entry;
 };
 

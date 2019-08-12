@@ -6,6 +6,7 @@ const cmrConverter = require('../cmr_converter');
 const stacParamsToCmrParamsMap = {
   bbox: ['bounding_box', (v) => v.join(',')],
   time: ['temporal', _.identity],
+  // TODO: remove lodash
   intersects: ['polygon', (v) => _.flattenDeep(_.first(v.coordinates)).join(',')],
   limit: ['page_size', _.identity],
   collectionId: ['collection_concept_id', _.identity]
