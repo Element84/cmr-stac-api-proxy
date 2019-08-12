@@ -8,10 +8,7 @@ const swaggerFileContents = fs.readFileSync('docs/WFS3core+STAC.yaml');
 const swagger = yaml.safeLoad(swaggerFileContents);
 
 const createSchemaValidator = (schemaElement) => {
-  const schema = _.merge({
-    components: swagger.components
-  }, swagger.components.schemas[schemaElement]);
-
+  const schema = Object.assign({}, {components: swagger.components}, swagger.components.schemas[schemaElement])
   return ajv.compile(schema);
 };
 

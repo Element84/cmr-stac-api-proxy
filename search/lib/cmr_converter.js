@@ -34,8 +34,11 @@ const mergeBoxes = (box1, box2) => {
   ];
 };
 
+// const parseOrdinateString = (numStr) => numStr.map(parseFloat(n => n.split(/\s|,/))) 
+
 const parseOrdinateString = (numStr) => _.map(numStr.split(/\s|,/), parseFloat);
 
+// can possibly do this using reduce
 const pointStringToPoints = (pointStr) => _.chunk(parseOrdinateString(pointStr), 2);
 
 // TODO this needs to be tested
@@ -55,6 +58,8 @@ const cmrCollSpatialToExtents = (cmrColl) => {
   if (cmrColl.points) {
     // an array of strings of "lat lon"
     // [ "53.63 -106.2" ]
+    // TODO remove lodash
+    // const points = cmrColl.points.map(c => parseOrdinateString(c))
     const points = _.map(cmrColl.points, parseOrdinateString);
     bbox = addPointsToBbox(bbox, points);
   }
@@ -65,6 +70,8 @@ const cmrCollSpatialToExtents = (cmrColl) => {
     // a list of strings of south west north east
     // TODO can cross antimeridian
     // [ "-14.3601 -176.6525 64.823 151.78372" ]
+    // TODO remove lodash
+    // bbox = cmrColl.boxes.reduce()
     bbox = _.reduce(cmrColl.boxes, (box, boxStr) => mergeBoxes(box, parseOrdinateString(boxStr)),
       bbox);
   }
@@ -78,7 +85,8 @@ const cmrCollSpatialToExtents = (cmrColl) => {
 // TODO remove page_num params from these
 
 const stacSearchWithCurrentParams = (event, collId) => {
-  const newParams = _.clone(event.queryStringParameters) || {};
+  const newParams = [...event.queryStringParameters] || {}
+  // const newParams = _.clone(event.queryStringParameters) || {};
   newParams.collectionId = collId;
   // The provider param isn't needed once the colleciton id is set.
   delete newParams.provider;
@@ -86,7 +94,8 @@ const stacSearchWithCurrentParams = (event, collId) => {
 };
 
 const cmrGranuleSearchWithCurrentParams = (event, collId) => {
-  const newParams = _.clone(event.queryStringParameters) || {};
+  const newParams = [...event.queryStringParameters] || {}
+  // const newParams = _.clone(event.queryStringParameters) || {};
   newParams.collection_concept_id = collId;
   // The provider param isn't needed once the colleciton id is set.
   delete newParams.collectionId;
@@ -126,6 +135,7 @@ const cmrCollToWFSColl = (event, cmrColl) => ({
 });
 
 const cmrPolygonToGeoJsonPolygon = (polygon) => {
+  // TODO: remove lodash
   const rings = _.map(polygon,
     (ringStr) => _.map(pointStringToPoints(ringStr), ([lat, lon]) => [lon, lat]));
   return {
@@ -148,12 +158,16 @@ const cmrBoxToGeoJsonPolygon = (box) => {
   };
 };
 
+// TODO remove lodash
+
 const cmrSpatialToGeoJSONGeometry = (cmrGran) => {
   let geometry = [];
   if (cmrGran.polygons) {
+    // geometry = geometry.concat(cmrGran.polygons.map())
     geometry = geometry.concat(_.map(cmrGran.polygons, cmrPolygonToGeoJsonPolygon));
   }
   if (cmrGran.boxes) {
+    // geometry = geometry.concat(cmrGran.boxes.map())
     geometry = geometry.concat(_.map(cmrGran.boxes, cmrBoxToGeoJsonPolygon));
   }
   if (cmrGran.points) {
@@ -184,6 +198,7 @@ const cmrGranToFeatureGeoJSON = (event, cmrGran) => {
     datetime = `${datetime}/${cmrGran.time_end}`;
   }
 
+  //TODO remove lodash
   const dataLink = _.first(
     _.filter(cmrGran.links, (l) => l.rel === DATA_REL && !l.inherited)
   );
@@ -241,13 +256,17 @@ const cmrGranToFeatureGeoJSON = (event, cmrGran) => {
 const cmrGranulesToFeatureCollection = (event, cmrGrans) => {
   const currPage = parseInt(extractParam(event.queryStringParameters, 'page_num', '1'), 10);
   const nextPage = currPage + 1;
-  const newParams = _.clone(event.queryStringParameters) || {};
+  // TODO remove lodash
+  const newParams = [...event.queryStringParameters] || {}
+  // const newParams = _.clone(event.queryStringParameters) || {};
   newParams.page_num = nextPage;
   const nextResultsLink = generateAppUrl(event, event.path, newParams);
 
   return {
     type: 'FeatureCollection',
-    features: _.map(cmrGrans, (g) => cmrGranToFeatureGeoJSON(event, g)),
+    // TODO remove lodash
+    features: cmrGrans.map(g => cmrGran(event, g)),
+    // features: _.map(cmrGrans, (g) => cmrGranToFeatureGeoJSON(event, g)),
     links: {
       self: generateSelfUrl(event),
       next: nextResultsLink
