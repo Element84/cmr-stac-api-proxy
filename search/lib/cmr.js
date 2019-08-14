@@ -1,4 +1,3 @@
-const _ = require('lodash');
 const axios = require('axios');
 const buildUrl = require('build-url');
 
@@ -22,7 +21,7 @@ const cmrSearch = async (url, params) => {
 
 const findCollections = async (params = {}) => {
   // TODO: remove lodash
-  const response = await cmrSearch(makeCmrSearchUrl('/collections.json'), Object.assign({}, {has_granules: true, downloadable: true}, params))
+  const response = await cmrSearch(makeCmrSearchUrl('/collections.json'), Object.assign({}, { has_granules: true, downloadable: true }, params));
   return response.data.feed.entry;
 };
 
