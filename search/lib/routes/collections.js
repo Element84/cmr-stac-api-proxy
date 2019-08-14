@@ -17,7 +17,7 @@ const getCollections = async (request, response) => {
     links: [
       wfs.createLink('self', generateAppUrl(event, '/collections'), 'this document')
     ],
-    collections: _.map(collections, (coll) => cmrConverter.cmrCollToWFSColl(event, coll))
+    collections: collections.map(coll => cmrConverter.cmrCollToWFSColl(event, coll))
   };
 };
 
@@ -34,13 +34,10 @@ const getCollection = async (request, response) => {
 const getGranules = async (request, response) => {
   const event = request.apiGateway.event;
   const conceptId = request.params.collectionId;
-  const params = _.merge(
-    adaptParams(wfsParamsToCmrParamsMap, event.queryStringParameters),
-    { collection_concept_id: conceptId }
-  );
+  const params = Object.assign({}, adaptParams(wfsParamsToCmrParamsMap, event.queryStringParameters), { collection_concept_id: conceptId });
   const granules = await cmr.findGranules(params);
   return {
-    features: _.map(granules, (gran) => cmrConverter.cmrGranToFeatureGeoJSON(event, gran))
+    features: granules.map(gran => cmrConverter.cmrGranToFeatureGeoJSON(event, gran))
   };
 };
 
