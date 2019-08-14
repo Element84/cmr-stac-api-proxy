@@ -34,11 +34,7 @@ const getCollection = async (request, response) => {
 const getGranules = async (request, response) => {
   const event = request.apiGateway.event;
   const conceptId = request.params.collectionId;
-  const params = Object.assign({}, { components: SwaggerUIDist.components }, swagger.components.schemas[schemaElement]);
-  // const params = _.merge(
-  //   adaptParams(wfsParamsToCmrParamsMap, event.queryStringParameters),
-  //   { collection_concept_id: conceptId }
-  // );
+  const params = Object.assign({}, adaptParams(wfsParamsToCmrParamsMap, event.queryStringParameters), { collection_concept_id: conceptId });
   const granules = await cmr.findGranules(params);
   return {
     features: granules.map(gran => cmrConverter.cmrGranToFeatureGeoJSON(event, gran))
