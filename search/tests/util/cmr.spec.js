@@ -54,6 +54,6 @@ describe('findGranules', () => {
   })
 
   it('should show granules', () => {
-    findGranules(params).toBe('https://cmr.earthdata.nasa.gov/search//granules.json?param=test')
+    findGranules(params).toBe('https://cmr.earthdata.nasa.gov/search/granules.json?param=test')
   })
 })
