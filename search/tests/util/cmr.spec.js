@@ -2,13 +2,15 @@ const sinon = require('sinon')
 const {makeCmrSearchUrl} = require('../../lib/util')
 
 // test axios calls for cmrSearch
+let path = 'path/to/resource'
+let params = {param: 'test'}
 
 describe ('makeCmrSearchUrl', () => {
   let path, queryParams
 
   beforeEach(() => {
-    path = 'path/to/resource'
-    queryParams = { param: 'test'}
+    path
+    queryParams = {...params}
   })
 
   it('should create a url based on query params', () => {
@@ -18,11 +20,9 @@ describe ('makeCmrSearchUrl', () => {
 
 const {findCollections} = require('../../lib/util')
 
-describe('findCollections', () => {
-  let params
-  
+describe('findCollections', () => {  
   beforeEach(() => {
-    params = {param: 'test'}
+    params
   })
 
   it('should show collections', () => {
@@ -49,10 +49,8 @@ describe('getCollection', () => {
 const {findGranules} = require('../../lib/')
 
 describe('findGranules', () => {
-  let params
-
   beforeEach(() => {
-    params = {param: 'test'}
+    params
   })
 
   it('should show granules', () => {
