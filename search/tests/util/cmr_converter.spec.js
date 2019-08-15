@@ -1,15 +1,15 @@
-const {addPointsToBbox} = require('../../lib/util')
+const {addPointsToBbox} = require('../../lib/cmr_converter')._private
 
-describe('addPointsToBbox', () => {
-  it('should add points if there is a bbox', () => {
-    addPointsToBbox([-180, 90, 180, -90], [180, 90])
-  })
-  it('should add points if there is not a bbox', () => {
-    addPointsToBbox(null, [175, 10])
-  })
-})
+// describe('addPointsToBbox', () => {
+//   it('should add points if there is a bbox', () => {
+//     expect(addPointsToBbox([-180, 90, 180, -90], [180, 90]))
+//   })
+//   it('should add points if there is not a bbox', () => {
+//     expect(addPointsToBbox(null, [175, 10]))
+//   })
+// })
 
-const {WHOLE_WORLD_BBOX} = require('../../lib/util')
+const {WHOLE_WORLD_BBOX} = require('../../lib/cmr_converter')._private
 
 describe('WHOLEWORLDBBOX', () => {
   it('should equal an exact value', () => {
@@ -17,35 +17,39 @@ describe('WHOLEWORLDBBOX', () => {
   })
 })
 
-const {cmrCollSpatialToExtents} = require('../../lib/util')
+// const {cmrCollSpatialToExtents} = require('../../lib/cmr_converter')._private
 
 // need to look for polygons, points, lines, boxes, and isNull
 
-describe('cmrCollSpatialToExtents', () => {
-  describe('polygons', () => {
-    it('should return a bbox and points', () => {
+// describe('cmrCollSpatialToExtents', () => {
+//   const cmrColl = {
+//     id: 1,
+//     lines: true
+//   }
+  // describe('polygons', () => {
+  //   it('should return a bbox and points', () => {
 
-    })
-  })
-  describe('points', () => {
-    it('should return a bbox and points', () => {
+  //   })
+  // })
+  // describe('points', () => {
+  //   it('should return a bbox and points', () => {
 
-    })
-  })
-  describe('lines', () => {
-    it('should throw an error', () => {
+  //   })
+  // })
+  // describe('lines', () => {
+  //   it('should throw an error', () => {
+  //       expect(cmrCollSpatialToExtents(cmrColl).toThrow(new Error))
+  //   })
+  // })
+  // describe('boxes', () => {
+  //   it('should return something', () => {
 
-    })
-  })
-  describe('boxes', () => {
-    it('should return something', () => {
+  //   })
+  // })
+//   describe('already has a bbox', () => {
+//     it('should should return WHOLE_WORLD_BBOX', () => {
+//       expect(bbox).toEqual(WHOLE_WORLD_BBOX)
+//     })
+//   })
 
-    })
-  })
-  describe('already has a bbox', () => {
-    it('should should return WHOLE_WORLD_BBOX', () => {
-      expect(bbox).toEqual(WHOLE_WORLD_BBOX)
-    })
-  })
-
-})
+// })
