@@ -4,7 +4,7 @@ An implementation of the [SpatioTemporal Asset Catalog API](https://github.com/r
 
 Deployed at [https://cmr-stac-api.dev.element84.com/](https://cmr-stac-api.dev.element84.com/)
 
-## Development
+## Development Quick Start
 
 ### Prerequisites
 
@@ -13,7 +13,9 @@ Deployed at [https://cmr-stac-api.dev.element84.com/](https://cmr-stac-api.dev.e
 
 ### Setup
 
-Run `bin/bootstrap.sh`
+This application is a monorepo around a set of microservices that support the STAC proxy. It is organized as a NPM module and will install all dependencies if you run the following command:
+
+`npm install`
 
 ### Running locally
 
