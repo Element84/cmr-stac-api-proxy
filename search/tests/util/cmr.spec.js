@@ -1,4 +1,4 @@
-const sinon = require('sinon');
+const axios = require('axios')
 const { makeCmrSearchUrl } = require('../../lib/cmr');
 
 // test axios calls for cmrSearch
@@ -17,6 +17,8 @@ describe('cmr', () => {
     it('should create a url based on query params', () => {
       expect(makeCmrSearchUrl(path, queryParams)).toBe('https://cmr.earthdata.nasa.gov/search/path/to/resource?param=test');
     });
+    // test for no path or query
+    // test for a path but no query
   });
 
   const { findCollections } = require('../../lib/cmr');
@@ -24,11 +26,25 @@ describe('cmr', () => {
   describe('findCollections', () => {
     params
     headers
-    console.log('these are the params', params)
-    console.log('findCollections', findCollections())
-    it('should return a url with granules and downloadable as true', async () => {
-      expect(await findCollections()).toContain({})
+    
+    beforeEach(() => {
+      jest.mock('axios');
+    }) 
+
+    afterEach(() => {
+      jest.restoreAllMocks();
     })
+
+    console.log('findCollections', findCollections())
+
+    it('should return a url with granules and downloadable as true', async () => {
+      expect(await findCollections()).toBeTruthy()
+    })
+
+    it('should return an axios call', async () => {
+      expect( await findCollections()).toBe(axios.get('https://cmr.earthdata.nasa.gov/search/collections.json?has_granules=true&downloadable=true'))
+    })
+
     // waiting for promise to be resolved?
     // it('should show collections', async () => {
     //   expect(await findCollections(params)).toBe('https://cmr.earthdata.nasa.gov/search/collections.json?param=test')
