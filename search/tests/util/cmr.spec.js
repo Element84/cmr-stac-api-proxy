@@ -27,7 +27,9 @@ describe('cmr', () => {
 
   describe('findCollections', () => {
     beforeEach(() => {
-      jest.mock('axios');
+      axios.get = jest.fn();
+      const cmrResponse = { data: { feed: { entry: { test: 'value' } } } };
+      axios.get.mockResolvedValue(cmrResponse);
     });
 
     afterEach(() => {
@@ -35,37 +37,12 @@ describe('cmr', () => {
     });
 
     it('should return a url with granules and downloadable as true', async () => {
-      expect(await findCollections()).toBeTruthy();
-    });
+      const result = await findCollections();
 
-    it('should return an axios call', async () => {
-      expect(await findCollections()).toBe(axios.get('https://cmr.earthdata.nasa.gov/search/collections.json?has_granules=true&downloadable=true'));
+      expect(axios.get.mock.calls.length).toBe(1);
+      expect(axios.get.mock.calls[0][0]).toBe('https://cmr.earthdata.nasa.gov/search/collections.json');
+      expect(axios.get.mock.calls[0][1]).toEqual({ params: { has_granules: true, downloadable: true }, headers: { 'Client-Id': 'cmr-stac-api-proxy' } });
+      expect(result).toEqual({ test: 'value' });
     });
   });
-
-  // it('works with promises', () => {
-  //   expect.assertions(1);
-  //   return user.getUserName(4).then(data => expect(data).toEqual('Mark'));
-  // });
-
-  // const {getCollection} = require('../../lib/cmr')
-
-  // describe('getCollection', () => {
-  //   let conceptId = 'abc123'
-  //   console.log(getCollection(conceptId))
-  //   // also waiting for promise to return
-  //   it('should get a collection', () => {
-  //     expect(getCollection(conceptId)).toEqual('abc123')
-  //   })
-  // })
-
-  // const {findGranules} = require('../../lib/util')
-
-  // describe('findGranules', () => {
-  //   params
-
-//   it('should show granules', () => {
-//     findGranules(params).toBe('https://cmr.earthdata.nasa.gov/search/granules.json?param=test')
-//   })
-// })
 });

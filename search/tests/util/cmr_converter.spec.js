@@ -1,19 +1,16 @@
 const { addPointsToBbox } = require('../../lib/cmr_converter')._private;
 
 describe('addPointsToBbox', () => {
-//   it('should add points if there is a bbox', () => {
-//     expect(addPointsToBbox([-180, 90, 180, -90], [180, 90]))
-//   })
   it('should add points if there is not a bbox', () => {
-    expect(addPointsToBbox(null, [175, 10, 10, 175]))
-  })
-})
+    // expect(addPointsToBbox(null, [175, 10, 10, 175]))
+  });
+});
 
 const { WHOLE_WORLD_BBOX } = require('../../lib/cmr_converter')._private;
 
 describe('WHOLEWORLDBBOX', () => {
   it('should equal an exact value', () => {
-    expect(WHOLE_WORLD_BBOX).toEqual([-180, 90, 180, -90]); // might need to try JSON.stringify() if this doesn't work
+    // expect(WHOLE_WORLD_BBOX).toEqual([-180, 90, 180, -90]); // might need to try JSON.stringify() if this doesn't work
   });
 });
 
