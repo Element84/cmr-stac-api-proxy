@@ -1,52 +1,86 @@
-const { addPointsToBbox } = require('../../lib/cmr_converter')._private;
+const {
+  cmrCollToWFSColl,
+  cmrGranToFeatureGeoJSON,
+  cmrGranulesToFeatureCollection,
+  parseOrginateString
+} = require('../../lib/cmr_converter');
 
-describe('addPointsToBbox', () => {
-  it('should add points if there is not a bbox', () => {
-    // expect(addPointsToBbox(null, [175, 10, 10, 175]))
-  });
-});
-
-const { WHOLE_WORLD_BBOX } = require('../../lib/cmr_converter')._private;
-
-describe('WHOLEWORLDBBOX', () => {
-  it('should equal an exact value', () => {
-    // expect(WHOLE_WORLD_BBOX).toEqual([-180, 90, 180, -90]); // might need to try JSON.stringify() if this doesn't work
-  });
-});
-
-const { cmrCollSpatialToExtents } = require('../../lib/cmr_converter')._private;
-
-// need to look for polygons, points, lines, boxes, and isNull
-
-describe('cmrCollSpatialToExtents', () => {
+describe('cmrCollToWFSCol', () => {
   const cmrColl = {
-    id: 1,
-    lines: true
+    id: 'id',
+    dataset_id: 'datasetId',
+    summary: 'summary',
+    time_start: 0,
+    time_end: 1
   };
-  // describe('polygons', () => {
-  //   it('should return a bbox and points', () => {
 
-  //   })
-  // })
-  // describe('points', () => {
-  //   it('should return a bbox and points', () => {
+  const event = { headers: { Host: 'example.com' }, queryStringParameters: [] };
 
-  //   })
-  // })
-  // describe('lines', () => {
-  //   it('should throw an error', () => {
-  //       expect(cmrCollSpatialToExtents(cmrColl).toThrow(new Error))
-  //   })
-  // })
-  // describe('boxes', () => {
-  //   it('should return something', () => {
+  it('should return a WFS Collection from a CMR collection.', () => {
+    expect(cmrCollToWFSColl(event, cmrColl)).toEqual({
+      description: 'summary',
+      extent: {
+        crs: 'http://www.opengis.net/def/crs/OGC/1.3/CRS84',
+        spatial: [
+          -180,
+          90,
+          180,
+          -90
+        ],
+        temporal: [
+          0,
+          1
+        ],
+        trs: 'http://www.opengis.net/def/uom/ISO-8601/0/Gregorian'
+      },
+      links: [
+        {
+          href: 'http://example.com/collections/id',
+          rel: 'self',
+          title: 'Info about this collection',
+          type: 'application/json'
+        }, {
+          href: 'http://example.com/search/stac?collectionId=id',
+          rel: 'stac',
+          title: 'STAC Search this collection',
+          type: 'application/json'
+        }, {
+          href: 'https://cmr.earthdata.nasa.gov/search/granules.json?collection_concept_id=id',
+          rel: 'cmr',
+          title: 'CMR Search this collection',
+          type: 'application/json'
+        }, {
+          href: 'http://example.com/collections/id/items',
+          rel: 'items',
+          title: 'Granules in this collection',
+          type: 'application/json'
+        }, {
+          href: 'https://cmr.earthdata.nasa.gov/search/concepts/id.html',
+          rel: 'overview',
+          title: 'HTML metadata for collection',
+          type: 'application/json'
+        }, {
+          href: 'https://cmr.earthdata.nasa.gov/search/concepts/id.native',
+          rel: 'metadata',
+          title: 'Native metadata for collection',
+          type: 'application/json'
+        }, {
+          href: 'https://cmr.earthdata.nasa.gov/search/concepts/id.umm_json',
+          rel: 'metadata',
+          title: 'JSON metadata for collection',
+          type: 'application/json'
+        }
+      ],
+      name: 'id',
+      title: 'datasetId' });
+  });
+});
 
-  //   })
-  // })
-  // describe('already has a bbox', () => {
-  //   console.log(WHOLE_WORLD_BBOX);
-  //   it('should should return WHOLE_WORLD_BBOX', () => {
-  //     expect(cmrCollSpatialToExtents(cmrColl)).toEqual(WHOLE_WORLD_BBOX);
-  //   });
-  // });
+describe.skip('cmrGranToFeatureGeoJSON', () => {
+});
+
+describe.skip('cmrGranulesToFeatureCollection', () => {
+});
+
+describe.skip('parseOrginateString', () => {
 });
