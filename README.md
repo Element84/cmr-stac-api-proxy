@@ -4,7 +4,7 @@ An implementation of the [SpatioTemporal Asset Catalog API](https://github.com/r
 
 Deployed at [https://cmr-stac-api.dev.element84.com/](https://cmr-stac-api.dev.element84.com/)
 
-There is more detailed documentation in the (docs)[docs/readme.md] folder of this repository.
+There is more detailed documentation in the [docs](docs/readme.md) folder of this repository.
 
 ## Development Quick Start
 
