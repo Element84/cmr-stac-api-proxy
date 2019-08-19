@@ -4,6 +4,8 @@ An implementation of the [SpatioTemporal Asset Catalog API](https://github.com/r
 
 Deployed at [https://cmr-stac-api.dev.element84.com/](https://cmr-stac-api.dev.element84.com/)
 
+There is more detailed documentation in the (docs)[docs/readme.md] folder of this repository.
+
 ## Development Quick Start
 
 ### Prerequisites
@@ -29,7 +31,7 @@ This application is a monorepo around a set of microservices that support the ST
 
 ## License
 
-Copyright 2018 Element 84
+Copyright 2018 - 2019 Element 84
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
