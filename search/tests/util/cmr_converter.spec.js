@@ -2,7 +2,7 @@ const {
   cmrCollToWFSColl,
   cmrGranToFeatureGeoJSON,
   cmrGranulesToFeatureCollection,
-  parseOrginateString
+  parseOrdinateString
 } = require('../../lib/cmr_converter');
 
 describe('cmrCollToWFSCol', () => {
@@ -82,5 +82,14 @@ describe.skip('cmrGranToFeatureGeoJSON', () => {
 describe.skip('cmrGranulesToFeatureCollection', () => {
 });
 
-describe.skip('parseOrginateString', () => {
+describe('parseOrdinateString', () => {
+  it('should take a string of numbers separated by `,` or ` ` and return array of floats.', () => {
+    expect(parseOrdinateString('1.1 2 4.2')).toEqual([1.1, 2, 4.2]);
+    expect(parseOrdinateString('1.1,2,4.2')).toEqual([1.1, 2, 4.2]);
+    expect(parseOrdinateString('1.1 2,4.2')).toEqual([1.1, 2, 4.2]);
+  });
+
+  it('should ignore separated non-number string tokens.', () => {
+    expect(parseOrdinateString('1,2.1,a')).toEqual([1, 2.1, NaN]);
+  });
 });
