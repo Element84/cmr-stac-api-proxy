@@ -102,7 +102,7 @@ describe('cmrGranToFeatureGeoJSON', () => {
     expect(cmrGranToFeatureGeoJSON(event, cmrGran)).toEqual({
       type: 'Feature',
       id: 1,
-      geometry: cmrSpatialToGeoJSONGeometry(cmrGran),
+      geometry: { type: 'Point', coordinates: [39, 77] },
       links: {
         self: {
           rel: 'self',
@@ -113,7 +113,7 @@ describe('cmrGranToFeatureGeoJSON', () => {
           href: 'http://example.com/collections/10'
         },
         metadata: {
-          href: 'http://example.com',
+          href: 'http://example.com/concepts/1.native',
           rel: 'metadata',
           type: 'application/json',
           title: ''
