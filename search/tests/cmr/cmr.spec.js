@@ -111,7 +111,7 @@ describe('cmr', () => {
       expect(result).toEqual({concept_id: 10})
     })
 
-    it.only('should return null if there is no conceptId', async () => {
+    it('should return null if there is no conceptId', async () => {
       const result = await getCollection(10)
 
       expect(axios.get.mock.calls.length).toBe(1)
