@@ -1,5 +1,5 @@
 const axios = require('axios');
-const { makeCmrSearchUrl } = require('../../lib/cmr');
+const { makeCmrSearchUrl } = require('../../lib/cmr/cmr');
 
 describe('cmr', () => {
   let path, params;
@@ -23,7 +23,7 @@ describe('cmr', () => {
     });
   });
 
-  const { findCollections } = require('../../lib/cmr');
+  const { findCollections } = require('../../lib/cmr/cmr');
 
   describe('findCollections', () => {
     beforeEach(() => {
@@ -55,7 +55,7 @@ describe('cmr', () => {
     })
   });
 
-  const { findGranules } = require('../../lib/cmr');
+  const { findGranules } = require('../../lib/cmr/cmr');
 
   describe('findGranules', () => {
     beforeEach(() => {
@@ -86,7 +86,7 @@ describe('cmr', () => {
     })
   })
 
-  const { getCollection } = require('../../lib/cmr');
+  const { getCollection } = require('../../lib/cmr/cmr');
 
   // run findCollections
   // findCollections => ${url}/collections.json?has_granules=true&downloadable=true&concept_id=10

@@ -3,7 +3,7 @@ const {
   cmrGranToFeatureGeoJSON,
   cmrGranulesToFeatureCollection,
   parseOrdinateString
-} = require('../../lib/cmr_converter');
+} = require('../../lib/cmr/cmr_converter');
 
 describe('cmrCollToWFSCol', () => {
   const cmrColl = {
