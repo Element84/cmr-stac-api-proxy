@@ -1,6 +1,4 @@
 const _ = require('lodash');
-const fs = require('fs');
-const util = require('util');
 const buildUrl = require('build-url');
 
 const firstIfArray = (v) => {
@@ -59,9 +57,6 @@ module.exports = {
   generateSelfUrl,
   wfs: {
     createLink
-  },
-  fsAsync: {
-    readFile: util.promisify(fs.readFile)
   },
   makeRawResponse,
   adaptParams

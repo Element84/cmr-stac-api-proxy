@@ -1,61 +1,8 @@
-const fs = require('fs');
-const mime = require('mime-types');
 const _ = require('lodash');
 
-const { makeRawResponse, generateAppUrl, fsAsync, wfs } = require('../util');
+const { makeRawResponse, generateAppUrl, wfs } = require('../util');
 const collections = require('./collections');
 const stac = require('./stac');
-
-const swaggerFileContents = fs.readFileSync('docs/WFS3core+STAC.yaml');
-
-const getDocs = async (request, response) => {
-  console.log('GET /docs');
-  const event = request.apiGateway.event;
-  const file = event.path.replace(/^\/docs\//, '');
-  let contents;
-  if (file === '/' || file === '') {
-    // Redirect root application to /docs/index.html
-    return makeRawResponse({
-      statusCode: 302,
-      headers: {
-        Location: generateAppUrl(event, '/docs/index.html')
-      },
-      body: 'Redirecting...'
-    });
-  }
-  if (file.endsWith('swagger.yaml')) {
-    contents = swaggerFileContents;
-    // Update the swagger file to be correct for deployed location.
-    contents = contents.toString().replace('- <server-location>',
-      `- url: '${generateAppUrl(event, '')}'`);
-  } else {
-    try {
-      contents = await fsAsync.readFile(`${__dirname}/../../node_modules/swagger-ui-dist/${file}`);
-    } catch (err) {
-      return makeRawResponse({
-        statusCode: 404,
-        body: `Could not find resource ${event.path}`
-      });
-    }
-
-    if (file.endsWith('index.html')) {
-      contents = contents.toString().replace('https://petstore.swagger.io/v2/swagger.json',
-        generateAppUrl(event, '/docs/swagger.yaml'))
-        .replace(
-          '<title>Swagger UI</title>',
-          '<title>STAC API - Common Metadata Repository STAC Proxy</title>'
-        );
-    }
-  }
-
-  return makeRawResponse({
-    statusCode: 200,
-    headers: {
-      'Content-Type': mime.lookup(file)
-    },
-    body: contents.toString()
-  });
-};
 
 const getRoot = async (request, response) => {
   const event = request.apiGateway.event;
@@ -95,7 +42,6 @@ const getConformance = async (request, response) => {
 
 module.exports = {
   getRoot,
-  getDocs,
   getConformance,
   collections,
   stac

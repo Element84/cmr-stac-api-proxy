@@ -1,9 +1,10 @@
+const path = require('path');
 const express = require('express');
 const awsServerless = require('aws-serverless-express');
 const awsServerlessMiddleware = require('aws-serverless-express/middleware');
 
 const { createSchemaValidator } = require('./lib/validator');
-const { getRoot, getDocs, getConformance, collections, stac } = require('./lib/routes');
+const { getRoot, getConformance, collections, stac } = require('./lib/routes');
 const { errorHandler } = require('./lib/error-handler');
 
 const application = express();
@@ -38,8 +39,6 @@ function wrapper (handlerFunction, responseSchemaElement) {
 
 application.use(awsServerlessMiddleware.eventContext());
 
-application.get('/', wrapper(getRoot, 'root'));
-application.get('/docs/*', wrapper(getDocs));
 application.get('/conformance', wrapper(getConformance, 'req-classes'));
 application.get('/collections', wrapper(collections.getCollections, 'content'));
 application.get('/collections/:collectionId', wrapper(collections.getCollection, 'collectionInfo'));
@@ -47,6 +46,8 @@ application.get('/collections/:collectionId/items', wrapper(collections.getGranu
 application.get('/collections/:collectionId/items/:itemId', wrapper(collections.getGranule, 'featureGeoJSON'));
 application.get('/search/stac', wrapper(stac.stacGetSearch, 'itemCollection'));
 application.post('/search/stac', wrapper(stac.stacPostSearch, 'itemCollection'));
+application.use('/docs', express.static(path.join(__dirname, 'docs'), { redirect: false }));
+application.use('/', wrapper(getRoot, 'root'));
 
 application.use(errorHandler);
 

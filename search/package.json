@@ -21,11 +21,13 @@
     "start": "sls offline",
     "deploy": "sls deploy",
     "lint": "eslint *.js ./lib/** ./tests/** --fix",
-    "test": "jest"
+    "test": "jest",
+    "build:docs": "redoc-cli bundle \"docs/WFS3core+STAC.yaml\" -o docs/index.html --cdn --title \"STAC\""
   },
   "devDependencies": {
     "eslint": "^6.1.0",
     "jest": "^24.8.0",
+    "redoc-cli": "^0.8.6",
     "serverless": "^1.49.0",
     "serverless-offline": "^5.8.0"
   }
