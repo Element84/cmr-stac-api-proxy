@@ -76,7 +76,60 @@ describe('cmrCollToWFSCol', () => {
   });
 });
 
-describe.skip('cmrGranToFeatureGeoJSON', () => {
+describe('cmrGranToFeatureGeoJSON', () => {
+  const cmrGran = {
+    id: 1,
+    collection_concept_id: 10,
+    dataset_id: 'datasetId',
+    summary: 'summary',
+    time_start: 0,
+    time_end: 1,
+    links: [
+      {
+        href: 'http://example.com/collections/id',
+        rel: 'self',
+        title: 'Info about this collection',
+        type: 'application/json'
+      }
+    ],
+    data_center: 'USA',
+    points: ['39, 77']
+  }
+
+  const event = { headers: { Host: 'example.com' }, queryStringParameters: [] };
+
+  it('should return a FeatureGeoJSON from a cmrGran', () => {
+    expect(cmrGranToFeatureGeoJSON(event, cmrGran)).toEqual({
+      type: 'Feature',
+      id: 1,
+      geometry: cmrSpatialToGeoJSONGeometry(cmrGran),
+      links: {
+        self: {
+          rel: 'self',
+          href: 'http://example.com/collections/10/items/1 '
+        },
+        parent: {
+          rel: 'parent',
+          href: 'http://example.com/collections/10'
+        },
+        metadata: {
+          href: 'http://example.com',
+          rel: 'metadata',
+          type: 'application/json',
+          title: ''
+        },
+        properties: {
+          provider: 'USA',
+          datetime: '0/1'
+        },
+        assets: {
+          name: 'Info about this collection',
+          href: 'http://example.com/collections/id',
+          type: 'application/json' 
+        }
+      }
+    })
+  })
 });
 
 describe.skip('cmrGranulesToFeatureCollection', () => {
