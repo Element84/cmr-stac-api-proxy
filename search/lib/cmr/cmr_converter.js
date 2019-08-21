@@ -1,6 +1,6 @@
 const _ = require('lodash');
 const { wfs, generateAppUrl, extractParam, generateSelfUrl } = require('../util');
-const cmr = require('./cmr.js');
+const cmr = require('./cmr');
 
 const WHOLE_WORLD_BBOX = [-180, 90, 180, -90];
 

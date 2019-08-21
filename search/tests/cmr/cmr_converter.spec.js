@@ -94,7 +94,7 @@ describe('cmrGranToFeatureGeoJSON', () => {
     ],
     data_center: 'USA',
     points: ['39,77']
-  }
+  };
 
   const event = { headers: { Host: 'example.com' }, queryStringParameters: [] };
 
@@ -124,8 +124,8 @@ describe('cmrGranToFeatureGeoJSON', () => {
           title: undefined
         }
       }
-    })
-  })
+    });
+  });
 });
 
 describe('cmrGranulesToFeatureCollection', () => {
@@ -146,13 +146,13 @@ describe('cmrGranulesToFeatureCollection', () => {
     ],
     data_center: 'USA',
     points: ['39,77']
-  }]
+  }];
 
   const event = { headers: { Host: 'example.com' }, queryStringParameters: [] };
 
   it('should return a cmrGranule to a FeatureCollection', () => {
     expect(cmrGranulesToFeatureCollection(event, cmrGran)).toEqual({
-      type: 'FeatureCollection', 
+      type: 'FeatureCollection',
       features: [{
         id: 1,
         geometry: { type: 'Point', coordinates: [77, 39] },
@@ -179,13 +179,12 @@ describe('cmrGranulesToFeatureCollection', () => {
           }
         }
       }],
-    links: {
-      self: 'http://example.com/undefined?',
-      next: 'http://example.com/undefined?page_num=2'
-    }
-    })
-  })
-
+      links: {
+        self: 'http://example.com/undefined?',
+        next: 'http://example.com/undefined?page_num=2'
+      }
+    });
+  });
 });
 
 describe('parseOrdinateString', () => {
