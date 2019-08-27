@@ -2,41 +2,7 @@ const _ = require('lodash');
 const { wfs, generateAppUrl, extractParam, generateSelfUrl } = require('../util');
 const cmr = require('./cmr');
 
-const WHOLE_WORLD_BBOX = [-180, 90, 180, -90];
-
-const addPointsToBbox = (bbox, points) => {
-  let w; let n; let e; let s;
-  if (bbox) {
-    [w, n, e, s] = bbox;
-  }
-  points.forEach(([lat, lon]) => {
-    if (w) {
-      w = Math.min(w, lon);
-      n = Math.max(n, lat);
-      e = Math.max(e, lon);
-      s = Math.min(s, lat);
-    } else {
-      [w, n, e, s] = [lon, lat, lon, lat];
-    }
-  });
-  return [w, n, e, s];
-};
-
-const mergeBoxes = (box1, box2) => {
-  if (_.isNull(box1)) {
-    return box2;
-  }
-  return [
-    Math.min(box1[0], box2[0]),
-    Math.max(box1[1], box2[1]),
-    Math.max(box1[2], box2[2]),
-    Math.min(box1[3], box2[3])
-  ];
-};
-
-const parseOrdinateString = (numStr) => numStr.split(/\s|,/).map(parseFloat);
-
-const pointStringToPoints = (pointStr) => _.chunk(parseOrdinateString(pointStr), 2);
+const WHOLE_WORLD_BBOX = [-180, 90, 180, -90]; // add this to the collection file
 
 // TODO this needs to be tested
 
@@ -260,8 +226,6 @@ module.exports = {
   parseOrdinateString,
   // For testing
   _private: {
-    addPointsToBbox,
-    WHOLE_WORLD_BBOX,
     cmrCollSpatialToExtents
   }
 };
