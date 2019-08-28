@@ -1,5 +1,5 @@
-const bbox = require('./bbox');
+const boundingBox = require('./bounding-box');
 
 module.export = {
-  bbox
+  boundingBox
 };
