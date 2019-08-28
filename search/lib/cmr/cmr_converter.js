@@ -6,6 +6,7 @@ const WHOLE_WORLD_BBOX = [-180, 90, 180, -90]; // add this to the collection fil
 
 // TODO this needs to be tested
 
+// move to collection_converter
 const cmrCollSpatialToExtents = (cmrColl) => {
   let bbox = null;
   if (cmrColl.polygons) {
@@ -42,6 +43,7 @@ const cmrCollSpatialToExtents = (cmrColl) => {
 
 // TODO remove page_num params from these
 
+// Move to collection_converter
 const stacSearchWithCurrentParams = (event, collId) => {
   const newParams = [...event.queryStringParameters] || {};
   newParams.collectionId = collId;
@@ -50,6 +52,7 @@ const stacSearchWithCurrentParams = (event, collId) => {
   return generateAppUrl(event, '/search/stac', newParams);
 };
 
+// Move to collection_converter
 const cmrGranuleSearchWithCurrentParams = (event, collId) => {
   const newParams = [...event.queryStringParameters] || {};
   newParams.collection_concept_id = collId;
@@ -59,6 +62,7 @@ const cmrGranuleSearchWithCurrentParams = (event, collId) => {
   return cmr.makeCmrSearchUrl('granules.json', newParams);
 };
 
+// Move to collection_converter
 const cmrCollToWFSColl = (event, cmrColl) => ({
   name: cmrColl.id,
   title: cmrColl.dataset_id,
@@ -90,6 +94,7 @@ const cmrCollToWFSColl = (event, cmrColl) => ({
   }
 });
 
+// Move to granule_to_item
 const cmrPolygonToGeoJsonPolygon = (polygon) => {
   const rings = polygon.map((ringStr) => pointStringToPoints(ringStr).map(([lat, lon]) => [lon, lat]));
   return {
@@ -98,6 +103,7 @@ const cmrPolygonToGeoJsonPolygon = (polygon) => {
   };
 };
 
+// Move to granule_to_item
 const cmrBoxToGeoJsonPolygon = (box) => {
   const [s, w, n, e] = parseOrdinateString(box);
   return {
@@ -112,6 +118,7 @@ const cmrBoxToGeoJsonPolygon = (box) => {
   };
 };
 
+// Move to granule_to_item
 const cmrSpatialToGeoJSONGeometry = (cmrGran) => {
   let geometry = [];
   if (cmrGran.polygons) {
@@ -138,10 +145,12 @@ const cmrSpatialToGeoJSONGeometry = (cmrGran) => {
   };
 };
 
+// Move to granule_to_item
 const DATA_REL = 'http://esipfed.org/ns/fedsearch/1.1/data#';
 const BROWSE_REL = 'http://esipfed.org/ns/fedsearch/1.1/browse#';
 const DOC_REL = 'http://esipfed.org/ns/fedsearch/1.1/documentation#';
 
+// Move to granule_to_item
 const cmrGranToFeatureGeoJSON = (event, cmrGran) => {
   let datetime = cmrGran.time_start;
   if (cmrGran.time_end) {
@@ -202,6 +211,7 @@ const cmrGranToFeatureGeoJSON = (event, cmrGran) => {
   };
 };
 
+// Move to collection_converter?
 const cmrGranulesToFeatureCollection = (event, cmrGrans) => {
   const currPage = parseInt(extractParam(event.queryStringParameters, 'page_num', '1'), 10);
   const nextPage = currPage + 1;
@@ -223,7 +233,7 @@ module.exports = {
   cmrCollToWFSColl,
   cmrGranToFeatureGeoJSON,
   cmrGranulesToFeatureCollection,
-  parseOrdinateString,
+  // parseOrdinateString,
   // For testing
   _private: {
     cmrCollSpatialToExtents

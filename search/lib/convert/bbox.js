@@ -1,4 +1,4 @@
-const _ = require('lodash');
+const { chunk } = require('lodash');
 
 const addPointsToBbox = (bbox, points) => {
   let w; let n; let e; let s;
@@ -21,8 +21,7 @@ const addPointsToBbox = (bbox, points) => {
 };
 
 const mergeBoxes = (box1, box2) => {
-  // if (box1 === null)
-  if (_.isNull(box1)) {
+  if (box1 === null) {
     return box2;
   }
   return [
@@ -35,7 +34,7 @@ const mergeBoxes = (box1, box2) => {
 
 const parseOrdinateString = (numStr) => numStr.split(/\s|,/).map(parseFloat);
 
-const pointStringToPoints = (pointStr) => _.chunk(parseOrdinateString(pointStr), 2);
+const pointStringToPoints = (pointStr) => chunk(parseOrdinateString(pointStr), 2);
 
 module.exports = {
   addPointsToBbox,

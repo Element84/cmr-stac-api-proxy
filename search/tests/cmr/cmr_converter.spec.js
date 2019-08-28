@@ -16,7 +16,7 @@ describe('cmrCollToWFSCol', () => {
 
   const event = { headers: { Host: 'example.com' }, queryStringParameters: [] };
 
-  it('should return a WFS Collection from a CMR collection.', () => {
+  it.only('should return a WFS Collection from a CMR collection.', () => {
     expect(cmrCollToWFSColl(event, cmrColl)).toEqual({
       description: 'summary',
       extent: {
