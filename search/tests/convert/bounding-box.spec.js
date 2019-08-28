@@ -1,4 +1,4 @@
-const { addPointsToBbox, mergeBoxes } = require('../../lib/convert/bbox');
+const { addPointsToBbox, mergeBoxes } = require('../../lib/convert/bounding-box');
 
 describe('bbox', () => {
   let testBbox = [-10, 10, 10, -10];

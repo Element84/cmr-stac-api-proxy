@@ -1,4 +1,5 @@
 const _ = require('lodash');
+const { parseOrdinateString } = require('../../lib/convert/bounding-box');
 const { wfs, generateAppUrl, extractParam, generateSelfUrl } = require('../util');
 const cmr = require('./cmr');
 

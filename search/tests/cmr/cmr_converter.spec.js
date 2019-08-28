@@ -1,8 +1,8 @@
+const { parseOrdinateString } = require('../../lib/convert/bounding-box');
 const {
   cmrCollToWFSColl,
   cmrGranToFeatureGeoJSON,
-  cmrGranulesToFeatureCollection,
-  parseOrdinateString
+  cmrGranulesToFeatureCollection
 } = require('../../lib/cmr/cmr_converter');
 
 describe('cmrCollToWFSCol', () => {
@@ -16,7 +16,7 @@ describe('cmrCollToWFSCol', () => {
 
   const event = { headers: { Host: 'example.com' }, queryStringParameters: [] };
 
-  it.only('should return a WFS Collection from a CMR collection.', () => {
+  it('should return a WFS Collection from a CMR collection.', () => {
     expect(cmrCollToWFSColl(event, cmrColl)).toEqual({
       description: 'summary',
       extent: {
