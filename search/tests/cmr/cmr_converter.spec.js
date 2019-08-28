@@ -1,8 +1,8 @@
+const { parseOrdinateString } = require('../../lib/convert/bounding-box');
 const {
   cmrCollToWFSColl,
   cmrGranToFeatureGeoJSON,
-  cmrGranulesToFeatureCollection,
-  parseOrdinateString
+  cmrGranulesToFeatureCollection
 } = require('../../lib/cmr/cmr_converter');
 
 describe('cmrCollToWFSCol', () => {
