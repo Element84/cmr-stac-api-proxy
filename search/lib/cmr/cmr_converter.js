@@ -1,6 +1,7 @@
 const _ = require('lodash');
-const { parseOrdinateString } = require('../../lib/convert/bounding-box');
-const { wfs, generateAppUrl, extractParam, generateSelfUrl } = require('../util');
+const { parseOrdinateString, pointStringToPoints } = require('../../lib/convert/bounding-box');
+const { cmrCollSpatialToExtents } = require('../../lib/convert/collections');
+const { wfs, generateAppUrl } = require('../util');
 const cmr = require('./cmr');
 
 // move to collection_converter
@@ -127,10 +128,7 @@ const cmrGranToFeatureGeoJSON = (event, cmrGran) => {
 };
 
 module.exports = {
-  cmrCollToWFSColl,
   cmrGranToFeatureGeoJSON,
-  cmrGranulesToFeatureCollection,
-  // parseOrdinateString,
   // For testing
   _private: {
     cmrCollSpatialToExtents
