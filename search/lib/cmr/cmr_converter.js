@@ -1,6 +1,5 @@
 const _ = require('lodash');
-const { parseOrdinateString, pointStringToPoints } = require('../../lib/convert/bounding-box');
-const { cmrCollSpatialToExtents } = require('../../lib/convert/collections');
+const { parseOrdinateString, pointStringToPoints, cmrCollSpatialToExtents } = require('../../lib/convert/');
 const { wfs, generateAppUrl } = require('../util');
 const cmr = require('./cmr');
 
