@@ -1,5 +1,5 @@
 const _ = require('lodash');
-const cmr = require('./cmr');
+const cmr = require('../cmr/cmr');
 const { wfs, generateAppUrl, extractParam, generateSelfUrl } = require('../util');
 const { WHOLE_WORLD_BBOX, pointStringToPoints, parseOrdinateString, addPointsToBbox, mergeBoxes } = require('./bounding-box');
 const { cmrGranToFeatureGeoJSON } = require('../cmr/cmr_converter');

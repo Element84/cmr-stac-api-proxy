@@ -1,5 +1,5 @@
 const _ = require('lodash');
-const { parseOrdinateString, pointStringToPoints, cmrCollSpatialToExtents } = require('../../lib/convert/');
+const { parseOrdinateString, pointStringToPoints, cmrCollSpatialToExtents } = require('../convert');
 const { wfs, generateAppUrl } = require('../util');
 const cmr = require('./cmr');
 
