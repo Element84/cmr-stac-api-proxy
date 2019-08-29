@@ -1,7 +1,6 @@
 const boundingBox = require('./bounding-box');
 const collections = require('./collections');
+const { inspect } = require('util');
 
-module.export = {
-  ...boundingBox,
-  ...collections
-};
+console.log(inspect(boundingBox));
+module.exports = Object.assign({}, boundingBox, collections);

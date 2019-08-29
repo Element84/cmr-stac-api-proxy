@@ -1,5 +1,5 @@
 const _ = require('lodash');
-const { parseOrdinateString, pointStringToPoints, cmrCollSpatialToExtents } = require('../convert');
+const { pointStringToPoints, cmrCollSpatialToExtents } = require('../convert');
 const { wfs, generateAppUrl } = require('../util');
 const cmr = require('./cmr');
 
@@ -44,6 +44,8 @@ const cmrSpatialToGeoJSONGeometry = (cmrGran) => {
   }
   if (cmrGran.points) {
     geometry = geometry.concat(cmrGran.points.map((ps) => {
+      const { parseOrdinateString } = require('../convert');
+
       const [lat, lon] = parseOrdinateString(ps);
       return { type: 'Point', coordinates: [lon, lat] };
     }));
