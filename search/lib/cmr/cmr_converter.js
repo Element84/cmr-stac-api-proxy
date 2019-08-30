@@ -1,6 +1,6 @@
 const _ = require('lodash');
-const { pointStringToPoints, cmrCollSpatialToExtents } = require('../convert');
-const { wfs, generateAppUrl } = require('../util');
+const { parseOrdinateString, pointStringToPoints, cmrCollSpatialToExtents } = require('../convert');
+const { wfs, generateAppUrl, extractParam, generateSelfUrl } = require('../util');
 const cmr = require('./cmr');
 
 // move to collection_converter
@@ -44,8 +44,6 @@ const cmrSpatialToGeoJSONGeometry = (cmrGran) => {
   }
   if (cmrGran.points) {
     geometry = geometry.concat(cmrGran.points.map((ps) => {
-      const { parseOrdinateString } = require('../convert');
-
       const [lat, lon] = parseOrdinateString(ps);
       return { type: 'Point', coordinates: [lon, lat] };
     }));
@@ -128,8 +126,27 @@ const cmrGranToFeatureGeoJSON = (event, cmrGran) => {
   };
 };
 
+// Move to collection_converter?
+const cmrGranulesToFeatureCollection = (event, cmrGrans) => {
+  const currPage = parseInt(extractParam(event.queryStringParameters, 'page_num', '1'), 10);
+  const nextPage = currPage + 1;
+  const newParams = { ...event.queryStringParameters } || {};
+  newParams.page_num = nextPage;
+  const nextResultsLink = generateAppUrl(event, event.path, newParams);
+
+  return {
+    type: 'FeatureCollection',
+    features: cmrGrans.map(g => cmrGranToFeatureGeoJSON(event, g)),
+    links: {
+      self: generateSelfUrl(event),
+      next: nextResultsLink
+    }
+  };
+};
+
 module.exports = {
   cmrGranToFeatureGeoJSON,
+  cmrGranulesToFeatureCollection,
   // For testing
   _private: {
     cmrCollSpatialToExtents
