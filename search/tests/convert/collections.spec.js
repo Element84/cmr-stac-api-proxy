@@ -1,7 +1,7 @@
-const { 
+const {
   cmrCollSpatialToExtents,
   stacSearchWithCurrentParams,
-  cmrGranulesSearchWithCurrentParams,
+  cmrGranuleSearchWithCurrentParams,
   cmrCollToWFSColl
 } = require('../../lib/convert/collections');
 const { WHOLE_WORLD_BBOX } = require('../../lib/convert');
@@ -44,6 +44,158 @@ describe('collections', () => {
     it('should return a bounding box containing the WHOLE_WORLD_BBOX', () => {
       cmrCollection = {};
       expect(cmrCollSpatialToExtents(cmrCollection)).toEqual(WHOLE_WORLD_BBOX);
+    });
+  });
+
+  describe('stacSearchWithCurrentParams', () => {
+    const collID = 'landsat-8-l1';
+
+    const event = {
+      headers: {
+        Host: 'example.com'
+      },
+      queryStringParameters: {
+        eo_cloud_cover: 2
+      },
+    };
+
+    const otherEvent = {
+      headers: {
+        Host: 'example.com'
+      },
+      queryStringParameters: {},
+    };
+
+    const awsEvent = {
+      headers: {
+        Host: 'amazonaws.com'
+      },
+      queryStringParameters: {
+        eo_cloud_cover: 2
+      },
+      requestContext: {
+        stage: 'early'
+      }
+    };
+
+    const anotherAwsEvent = {
+      headers: {
+        Host: 'amazonaws.com'
+      },
+      queryStringParameters: {},
+      requestContext: {
+        stage: 'early'
+      }
+    }
+
+    it('should return a search url with current params', () => {
+      expect(stacSearchWithCurrentParams(event, collID)).toEqual('http://example.com/search/stac?eo_cloud_cover=2&collectionId=landsat-8-l1');      
+    });
+
+    it('should return a search url with no params', () => {
+      expect(stacSearchWithCurrentParams(otherEvent, collID)).toEqual('http://example.com/search/stac?collectionId=landsat-8-l1');
+    });
+
+    it('should return a search url with a stage and params', () => {
+      expect(stacSearchWithCurrentParams(awsEvent, collID)).toEqual('http://amazonaws.com/early/search/stac?eo_cloud_cover=2&collectionId=landsat-8-l1')
+    })
+
+    it('should return a search url with a stage and no params', () => {
+      expect(stacSearchWithCurrentParams(anotherAwsEvent, collID)).toEqual('http://amazonaws.com/early/search/stac?collectionId=landsat-8-l1')
+    })
+  });
+
+  describe('cmrGranuleSearchWithCurrentParams', () => {
+    //queryStringParameters, collectionId, provider, headers(host), 
+    const collID = 'landsat-8-l1';
+    const event = {
+      queryStringParameters: {
+        collection_concept_id: 'C1234567-PODAAC',
+        cloud_cover: 0.2        
+      }
+    };
+
+    const otherEvent = {};
+
+    it('should return a CMR search url containing given parameters', () => {
+      expect(cmrGranuleSearchWithCurrentParams(event, collID)).toEqual('https://cmr.earthdata.nasa.gov/search/granules.json?collection_concept_id=landsat-8-l1&cloud_cover=0.2');
+    });
+
+    it('should return a CMR search url without any parameters', () => {
+      console.log(cmrGranuleSearchWithCurrentParams(otherEvent, collID));
+      expect(cmrGranuleSearchWithCurrentParams(otherEvent, collID)).toEqual('https://cmr.earthdata.nasa.gov/search/granules.json?collection_concept_id=landsat-8-l1');
+    });
+    
+  });
+
+  describe('cmrCollToWFSCol', () => {
+    const cmrColl = {
+      id: 'id',
+      dataset_id: 'datasetId',
+      summary: 'summary',
+      time_start: 0,
+      time_end: 1
+    };
+  
+    const event = { headers: { Host: 'example.com' }, queryStringParameters: [] };
+  
+    it('should return a WFS Collection from a CMR collection.', () => {
+      expect(cmrCollToWFSColl(event, cmrColl)).toEqual({
+        description: 'summary',
+        extent: {
+          crs: 'http://www.opengis.net/def/crs/OGC/1.3/CRS84',
+          spatial: [
+            -180,
+            90,
+            180,
+            -90
+          ],
+          temporal: [
+            0,
+            1
+          ],
+          trs: 'http://www.opengis.net/def/uom/ISO-8601/0/Gregorian'
+        },
+        links: [
+          {
+            href: 'http://example.com/collections/id',
+            rel: 'self',
+            title: 'Info about this collection',
+            type: 'application/json'
+          }, {
+            href: 'http://example.com/search/stac?collectionId=id',
+            rel: 'stac',
+            title: 'STAC Search this collection',
+            type: 'application/json'
+          }, {
+            href: 'https://cmr.earthdata.nasa.gov/search/granules.json?collection_concept_id=id',
+            rel: 'cmr',
+            title: 'CMR Search this collection',
+            type: 'application/json'
+          }, {
+            href: 'http://example.com/collections/id/items',
+            rel: 'items',
+            title: 'Granules in this collection',
+            type: 'application/json'
+          }, {
+            href: 'https://cmr.earthdata.nasa.gov/search/concepts/id.html',
+            rel: 'overview',
+            title: 'HTML metadata for collection',
+            type: 'application/json'
+          }, {
+            href: 'https://cmr.earthdata.nasa.gov/search/concepts/id.native',
+            rel: 'metadata',
+            title: 'Native metadata for collection',
+            type: 'application/json'
+          }, {
+            href: 'https://cmr.earthdata.nasa.gov/search/concepts/id.umm_json',
+            rel: 'metadata',
+            title: 'JSON metadata for collection',
+            type: 'application/json'
+          }
+        ],
+        name: 'id',
+        title: 'datasetId' });
     });
   });
 });
