@@ -8,7 +8,7 @@ const { WHOLE_WORLD_BBOX } = require('../../lib/convert');
 
 describe('collections', () => {
   describe('cmrCollSpatialToExtents', () => {
-    // four scenarios need to be tested. The cmrColl object having either polygons, 
+    // four scenarios need to be tested. The cmrColl object having either polygons,
     // points, lines, boxes, or nothing.
     let cmrCollection;
 
@@ -30,7 +30,7 @@ describe('collections', () => {
       cmrCollection = {
         id: 'sampleCollection',
         lines: [28.2, 44, -44, 109.3]
-      }
+      };
       expect(() => { cmrCollSpatialToExtents(cmrCollection); }).toThrow(Error);
     });
 
@@ -56,14 +56,14 @@ describe('collections', () => {
       },
       queryStringParameters: {
         eo_cloud_cover: 2
-      },
+      }
     };
 
     const otherEvent = {
       headers: {
         Host: 'example.com'
       },
-      queryStringParameters: {},
+      queryStringParameters: {}
     };
 
     const awsEvent = {
@@ -86,10 +86,10 @@ describe('collections', () => {
       requestContext: {
         stage: 'early'
       }
-    }
+    };
 
     it('should return a search url with current params', () => {
-      expect(stacSearchWithCurrentParams(event, collID)).toEqual('http://example.com/search/stac?eo_cloud_cover=2&collectionId=landsat-8-l1');      
+      expect(stacSearchWithCurrentParams(event, collID)).toEqual('http://example.com/search/stac?eo_cloud_cover=2&collectionId=landsat-8-l1');
     });
 
     it('should return a search url with no params', () => {
@@ -97,21 +97,21 @@ describe('collections', () => {
     });
 
     it('should return a search url with a stage and params', () => {
-      expect(stacSearchWithCurrentParams(awsEvent, collID)).toEqual('http://amazonaws.com/early/search/stac?eo_cloud_cover=2&collectionId=landsat-8-l1')
-    })
+      expect(stacSearchWithCurrentParams(awsEvent, collID)).toEqual('http://amazonaws.com/early/search/stac?eo_cloud_cover=2&collectionId=landsat-8-l1');
+    });
 
     it('should return a search url with a stage and no params', () => {
-      expect(stacSearchWithCurrentParams(anotherAwsEvent, collID)).toEqual('http://amazonaws.com/early/search/stac?collectionId=landsat-8-l1')
-    })
+      expect(stacSearchWithCurrentParams(anotherAwsEvent, collID)).toEqual('http://amazonaws.com/early/search/stac?collectionId=landsat-8-l1');
+    });
   });
 
   describe('cmrGranuleSearchWithCurrentParams', () => {
-    //queryStringParameters, collectionId, provider, headers(host), 
+    // queryStringParameters, collectionId, provider, headers(host),
     const collID = 'landsat-8-l1';
     const event = {
       queryStringParameters: {
         collection_concept_id: 'C1234567-PODAAC',
-        cloud_cover: 0.2        
+        cloud_cover: 0.2
       }
     };
 
@@ -125,7 +125,6 @@ describe('collections', () => {
       console.log(cmrGranuleSearchWithCurrentParams(otherEvent, collID));
       expect(cmrGranuleSearchWithCurrentParams(otherEvent, collID)).toEqual('https://cmr.earthdata.nasa.gov/search/granules.json?collection_concept_id=landsat-8-l1');
     });
-    
   });
 
   describe('cmrCollToWFSCol', () => {
@@ -136,9 +135,9 @@ describe('collections', () => {
       time_start: 0,
       time_end: 1
     };
-  
+
     const event = { headers: { Host: 'example.com' }, queryStringParameters: [] };
-  
+
     it('should return a WFS Collection from a CMR collection.', () => {
       expect(cmrCollToWFSColl(event, cmrColl)).toEqual({
         description: 'summary',
