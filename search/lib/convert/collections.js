@@ -34,7 +34,7 @@ function cmrCollSpatialToExtents (cmrColl) {
     bbox = WHOLE_WORLD_BBOX;
   }
   return bbox;
-};
+}
 
 function stacSearchWithCurrentParams (event, collId) {
   const newParams = [...event.queryStringParameters] || {};
@@ -42,7 +42,7 @@ function stacSearchWithCurrentParams (event, collId) {
   // The provider param isn't needed once the colleciton id is set.
   delete newParams.provider;
   return generateAppUrl(event, '/search/stac', newParams);
-};
+}
 
 function cmrGranuleSearchWithCurrentParams (event, collId) {
   const newParams = [...event.queryStringParameters] || {};
@@ -51,7 +51,7 @@ function cmrGranuleSearchWithCurrentParams (event, collId) {
   delete newParams.collectionId;
   delete newParams.provider;
   return cmr.makeCmrSearchUrl('granules.json', newParams);
-};
+}
 
 const cmrCollToWFSColl = (event, cmrColl) => ({
   name: cmrColl.id,

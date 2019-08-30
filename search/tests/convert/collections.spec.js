@@ -4,6 +4,7 @@ const {
   cmrGranulesSearchWithCurrentParams,
   cmrCollToWFSColl
 } = require('../../lib/convert/collections');
+const { WHOLE_WORLD_BBOX } = require('../../lib/convert');
 
 describe('collections', () => {
   describe('cmrCollSpatialToExtents', () => {
@@ -38,6 +39,11 @@ describe('collections', () => {
         boxes: ['-23.4 -74.6 54.9 33.3']
       };
       expect(cmrCollSpatialToExtents(cmrCollection)).toEqual([-23.4, -74.6, 54.9, 33.3]);
+    });
+
+    it('should return a bounding box containing the WHOLE_WORLD_BBOX', () => {
+      cmrCollection = {};
+      expect(cmrCollSpatialToExtents(cmrCollection)).toEqual(WHOLE_WORLD_BBOX);
     });
   });
 });
