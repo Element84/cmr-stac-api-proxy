@@ -1,7 +1,7 @@
 const _ = require('lodash');
 const { adaptParams } = require('../util');
 const cmr = require('../cmr/cmr');
-const cmrConverter = require('../cmr/cmr_converter');
+const cmrConverter = require('../convert');
 
 const stacParamsToCmrParamsMap = {
   bbox: ['bounding_box', (v) => v.join(',')],

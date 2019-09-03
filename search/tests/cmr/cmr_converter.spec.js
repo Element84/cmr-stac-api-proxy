@@ -28,7 +28,7 @@ describe('cmrGranToFeatureGeoJSON', () => {
 
   const event = { headers: { Host: 'example.com' }, queryStringParameters: [] };
 
-  it('should return a FeatureGeoJSON from a cmrGran', () => {
+  it.skip('should return a FeatureGeoJSON from a cmrGran', () => {
     expect(cmrGranToFeatureGeoJSON(event, cmrGran)).toEqual({
       type: 'Feature',
       id: 1,
@@ -59,13 +59,13 @@ describe('cmrGranToFeatureGeoJSON', () => {
 });
 
 describe('parseOrdinateString', () => {
-  it('should take a string of numbers separated by `,` or ` ` and return array of floats.', () => {
+  it.skip('should take a string of numbers separated by `,` or ` ` and return array of floats.', () => {
     expect(parseOrdinateString('1.1 2 4.2')).toEqual([1.1, 2, 4.2]);
     expect(parseOrdinateString('1.1,2,4.2')).toEqual([1.1, 2, 4.2]);
     expect(parseOrdinateString('1.1 2,4.2')).toEqual([1.1, 2, 4.2]);
   });
 
-  it('should ignore separated non-number string tokens.', () => {
+  it.skip('should ignore separated non-number string tokens.', () => {
     expect(parseOrdinateString('1,2.1,a')).toEqual([1, 2.1, NaN]);
   });
 });
@@ -92,7 +92,7 @@ describe('cmrGranulesToFeatureCollection', () => {
 
   const event = { headers: { Host: 'example.com' }, queryStringParameters: [] };
 
-  it('should return a cmrGranule to a FeatureCollection', () => {
+  it.skip('should return a cmrGranule to a FeatureCollection', () => {
     expect(cmrGranulesToFeatureCollection(event, cmrGran)).toEqual({
       type: 'FeatureCollection',
       features: [{

@@ -1,7 +1,7 @@
 const _ = require('lodash');
 const { adaptParams, generateAppUrl, wfs } = require('../util');
 const cmr = require('../cmr/cmr');
-const cmrConverter = require('../cmr/cmr_converter');
+const cmrConverter = require('../convert');
 
 const wfsParamsToCmrParamsMap = {
   bbox: ['bounding_box', _.identity],

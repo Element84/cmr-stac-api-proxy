@@ -1,17 +1,20 @@
 const _ = require('lodash');
-const cmr = require('./cmr');
+const cmr = require('../cmr/cmr');
 const { pointStringToPoints, parseOrdinateString } = require('./bounding-box');
-const { generateAppUrl, wfs } = require('..utils');
+const { generateAppUrl, wfs, extractParam, generateSelfUrl } = require('../util');
 
-const cmrPolygonToGeoJsonPolygon = (polygon) => {
-  const rings = polygon.map((ringStr) => pointStringToPoints(ringStr).map(([lat, lon]) => [lon, lat]));
+// Expects ring that is a string of longitudes and latitudes
+// Example: '10,10,30,10,30,20,10,20,10,10' => [[10, 10], [10, 30], [20, 30]....]
+function cmrPolygonToGeoJsonPolygon (polygon) {
+  const rings = polygon.map((ringStr) => pointStringToPoints(ringStr)).map(([lat, lon]) => [lon, lat]);
   return {
     type: 'Polygon',
     coordinates: rings
   };
-};
+}
 
-const cmrBoxToGeoJsonPolygon = (box) => {
+// box = ['33,-56,27.2,80']
+function cmrBoxToGeoJsonPolygon (box) {
   const [s, w, n, e] = parseOrdinateString(box);
   return {
     type: 'Polygon',
@@ -23,9 +26,9 @@ const cmrBoxToGeoJsonPolygon = (box) => {
       [w, s]
     ]]
   };
-};
+}
 
-const cmrSpatialToGeoJSONGeometry = (cmrGran) => {
+function cmrSpatialToGeoJSONGeometry (cmrGran) {
   let geometry = [];
   if (cmrGran.polygons) {
     geometry = geometry.concat(cmrGran.polygons.map(cmrPolygonToGeoJsonPolygon));
@@ -49,13 +52,13 @@ const cmrSpatialToGeoJSONGeometry = (cmrGran) => {
     type: 'GeometryCollection',
     geometries: geometry
   };
-};
+}
 
 const DATA_REL = 'http://esipfed.org/ns/fedsearch/1.1/data#';
 const BROWSE_REL = 'http://esipfed.org/ns/fedsearch/1.1/browse#';
 const DOC_REL = 'http://esipfed.org/ns/fedsearch/1.1/documentation#';
 
-const cmrGranToFeatureGeoJSON = (event, cmrGran) => {
+function cmrGranToFeatureGeoJSON (event, cmrGran) {
   let datetime = cmrGran.time_start;
   if (cmrGran.time_end) {
     datetime = `${datetime}/${cmrGran.time_end}`;
@@ -113,11 +116,29 @@ const cmrGranToFeatureGeoJSON = (event, cmrGran) => {
     },
     assets
   };
-};
+}
+
+function cmrGranulesToFeatureCollection (event, cmrGrans) {
+  const currPage = parseInt(extractParam(event.queryStringParameters, 'page_num', '1'), 10);
+  const nextPage = currPage + 1;
+  const newParams = { ...event.queryStringParameters } || {};
+  newParams.page_num = nextPage;
+  const nextResultsLink = generateAppUrl(event, event.path, newParams);
+
+  return {
+    type: 'FeatureCollection',
+    features: cmrGrans.map(g => cmrGranToFeatureGeoJSON(event, g)),
+    links: {
+      self: generateSelfUrl(event),
+      next: nextResultsLink
+    }
+  };
+}
 
 module.exports = {
   cmrPolygonToGeoJsonPolygon,
   cmrBoxToGeoJsonPolygon,
   cmrSpatialToGeoJSONGeometry,
-  cmrGranToFeatureGeoJSON
+  cmrGranToFeatureGeoJSON,
+  cmrGranulesToFeatureCollection
 };
