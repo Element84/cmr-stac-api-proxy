@@ -1,9 +1,36 @@
 const express = require('express');
+const { adaptParams, wfsParamsToCmrParamsMap, wfs, generateAppUrl } = require('../util');
+const cmr = require('../cmr/cmr');
+const { cmrCollToWFSColl } = require('../cmr/cmr_converter');
 
-const router = express.Router();
+async function getCollections (request, response) {
+  const event = request.apiGateway.event;
+  const params = adaptParams(wfsParamsToCmrParamsMap, request.query);
+  const collections = await cmr.findCollections(params);
+  return {
+    links: [
+      wfs.createLink('self', generateAppUrl(event, '/collections'), 'this document')
+    ],
+    collections: collections.map(coll => cmrCollToWFSColl(event, coll))
+  };
+}
 
-router.get('/collections', (req, res) => {
-  res.json({ status: 'okay' });
-});
+async function getCollection (request, response) {
+  const event = request.apiGateway.event;
+  const conceptId = request.params.collectionId;
+  const coll = await cmr.getCollection(conceptId);
+  if (coll) {
+    return cmrCollToWFSColl(event, coll);
+  }
+  return null;
+}
 
-module.exports = router;
+const routes = express.Router();
+routes.get('/collections', getCollections);
+routes.get('/collections/:collectionId', getCollection);
+
+module.exports = {
+  getCollections,
+  getCollection,
+  routes
+};
