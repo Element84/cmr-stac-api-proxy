@@ -106,10 +106,6 @@ describe('collections', () => {
   });
 
   describe('cmrGranuleSearchWithCurrentParams', () => {
-<<<<<<< HEAD
-    // queryStringParameters, collectionId, provider, headers(host),
-=======
->>>>>>> develop
     const collID = 'landsat-8-l1';
     const event = {
       queryStringParameters: {

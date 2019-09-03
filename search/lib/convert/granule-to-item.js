@@ -6,14 +6,14 @@ const { generateAppUrl, wfs, extractParam, generateSelfUrl } = require('../util'
 // Expects ring that is a string of longitudes and latitudes
 // Example: '10,10,30,10,30,20,10,20,10,10' => [[10, 10], [10, 30], [20, 30]....]
 function cmrPolygonToGeoJsonPolygon (polygon) {
-  const rings = polygon.map((ringStr) => pointStringToPoints(ringStr)).map(([lat, lon]) => [lon, lat]);
+  const rings = polygon.map((ringStr) => pointStringToPoints(ringStr));
   return {
     type: 'Polygon',
     coordinates: rings
   };
 }
 
-// box = ['33,-56,27.2,80']
+// Example: box = ['33,-56,27.2,80']
 function cmrBoxToGeoJsonPolygon (box) {
   const [s, w, n, e] = parseOrdinateString(box);
   return {
@@ -36,9 +36,10 @@ function cmrSpatialToGeoJSONGeometry (cmrGran) {
   if (cmrGran.boxes) {
     geometry = geometry.concat(cmrGran.boxes.map(cmrBoxToGeoJsonPolygon));
   }
+  //Example: points: ['12,34', '45,67']
   if (cmrGran.points) {
     geometry = geometry.concat(cmrGran.points.map((ps) => {
-      const [lat, lon] = parseOrdinateString(ps);
+      const [lon, lat] = parseOrdinateString(ps);
       return { type: 'Point', coordinates: [lon, lat] };
     }));
   }
