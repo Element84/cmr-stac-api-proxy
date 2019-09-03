@@ -106,7 +106,6 @@ describe('collections', () => {
   });
 
   describe('cmrGranuleSearchWithCurrentParams', () => {
-    //queryStringParameters, collectionId, provider, headers(host), 
     const collID = 'landsat-8-l1';
     const event = {
       queryStringParameters: {
@@ -122,10 +121,8 @@ describe('collections', () => {
     });
 
     it('should return a CMR search url without any parameters', () => {
-      console.log(cmrGranuleSearchWithCurrentParams(otherEvent, collID));
       expect(cmrGranuleSearchWithCurrentParams(otherEvent, collID)).toEqual('https://cmr.earthdata.nasa.gov/search/granules.json?collection_concept_id=landsat-8-l1');
     });
-    
   });
 
   describe('cmrCollToWFSCol', () => {
