@@ -1,14 +1,13 @@
 const { addPointsToBbox, mergeBoxes } = require('../../lib/convert/bounding-box');
 
 describe('bbox', () => {
-  let testBbox = [-10, 10, 10, -10];
-  let testBbox2 = [-20, 7, 44, 10]
-  let points = [[20, 100], [5, -5]];
-  let lotsOfPoints = [[20, 100], [5, -5], [-40, 73]];
+  const testBbox = [-10, 10, 10, -10];
+  const testBbox2 = [-20, 7, 44, 10];
+  const points = [[20, 100], [5, -5]];
+  const lotsOfPoints = [[20, 100], [5, -5], [-40, 73]];
   const WHOLE_WORLD_BBOX = [-180, 90, 180, -90];
 
   describe('addPointsToBbox', () => {
-
     it('should create the largest bbox', () => {
       expect(addPointsToBbox(testBbox, points)).toEqual([-10, 20, 100, -10]);
     });
