@@ -1,25 +1,20 @@
 const _ = require('lodash');
-const { parseOrdinateString, pointStringToPoints, cmrCollSpatialToExtents } = require('../convert');
-const { wfs, generateAppUrl, extractParam, generateSelfUrl } = require('../util');
-const cmr = require('./cmr');
+const cmr = require('../cmr/cmr');
+const { pointStringToPoints, parseOrdinateString } = require('./bounding-box');
+const { generateAppUrl, wfs, extractParam, generateSelfUrl } = require('../util');
 
-// move to collection_converter
-
-// TODO remove page_num params from these
-
-// Move to collection_converter
-
-// Move to granule_to_item
-const cmrPolygonToGeoJsonPolygon = (polygon) => {
-  const rings = polygon.map((ringStr) => pointStringToPoints(ringStr).map(([lat, lon]) => [lon, lat]));
+// Expects ring that is a string of longitudes and latitudes
+// Example: '10,10,30,10,30,20,10,20,10,10' => [[10, 10], [10, 30], [20, 30]....]
+function cmrPolygonToGeoJsonPolygon (polygon) {
+  const rings = polygon.map((ringStr) => pointStringToPoints(ringStr));
   return {
     type: 'Polygon',
     coordinates: rings
   };
-};
+}
 
-// Move to granule_to_item
-const cmrBoxToGeoJsonPolygon = (box) => {
+// Example: box = ['33,-56,27.2,80']
+function cmrBoxToGeoJsonPolygon (box) {
   const [s, w, n, e] = parseOrdinateString(box);
   return {
     type: 'Polygon',
@@ -31,10 +26,9 @@ const cmrBoxToGeoJsonPolygon = (box) => {
       [w, s]
     ]]
   };
-};
+}
 
-// Move to granule_to_item
-const cmrSpatialToGeoJSONGeometry = (cmrGran) => {
+function cmrSpatialToGeoJSONGeometry (cmrGran) {
   let geometry = [];
   if (cmrGran.polygons) {
     geometry = geometry.concat(cmrGran.polygons.map(cmrPolygonToGeoJsonPolygon));
@@ -42,9 +36,10 @@ const cmrSpatialToGeoJSONGeometry = (cmrGran) => {
   if (cmrGran.boxes) {
     geometry = geometry.concat(cmrGran.boxes.map(cmrBoxToGeoJsonPolygon));
   }
+  //Example: points: ['12,34', '45,67']
   if (cmrGran.points) {
     geometry = geometry.concat(cmrGran.points.map((ps) => {
-      const [lat, lon] = parseOrdinateString(ps);
+      const [lon, lat] = parseOrdinateString(ps);
       return { type: 'Point', coordinates: [lon, lat] };
     }));
   }
@@ -58,15 +53,13 @@ const cmrSpatialToGeoJSONGeometry = (cmrGran) => {
     type: 'GeometryCollection',
     geometries: geometry
   };
-};
+}
 
-// Move to granule_to_item
 const DATA_REL = 'http://esipfed.org/ns/fedsearch/1.1/data#';
 const BROWSE_REL = 'http://esipfed.org/ns/fedsearch/1.1/browse#';
 const DOC_REL = 'http://esipfed.org/ns/fedsearch/1.1/documentation#';
 
-// Move to granule_to_item
-const cmrGranToFeatureGeoJSON = (event, cmrGran) => {
+function cmrGranToFeatureGeoJSON (event, cmrGran) {
   let datetime = cmrGran.time_start;
   if (cmrGran.time_end) {
     datetime = `${datetime}/${cmrGran.time_end}`;
@@ -124,10 +117,9 @@ const cmrGranToFeatureGeoJSON = (event, cmrGran) => {
     },
     assets
   };
-};
+}
 
-// Move to collection_converter?
-const cmrGranulesToFeatureCollection = (event, cmrGrans) => {
+function cmrGranulesToFeatureCollection (event, cmrGrans) {
   const currPage = parseInt(extractParam(event.queryStringParameters, 'page_num', '1'), 10);
   const nextPage = currPage + 1;
   const newParams = { ...event.queryStringParameters } || {};
@@ -142,13 +134,12 @@ const cmrGranulesToFeatureCollection = (event, cmrGrans) => {
       next: nextResultsLink
     }
   };
-};
+}
 
 module.exports = {
+  cmrPolygonToGeoJsonPolygon,
+  cmrBoxToGeoJsonPolygon,
+  cmrSpatialToGeoJSONGeometry,
   cmrGranToFeatureGeoJSON,
-  cmrGranulesToFeatureCollection,
-  // For testing
-  _private: {
-    cmrCollSpatialToExtents
-  }
+  cmrGranulesToFeatureCollection
 };
