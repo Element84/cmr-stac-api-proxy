@@ -26,8 +26,10 @@ async function getCollection (request, response) {
 }
 
 const routes = express.Router();
-routes.get('/collections', getCollections);
-routes.get('/collections/:collectionId', getCollection);
+routes.get('/collections', (req, res) => getCollections(req, res));
+routes.get('/collections/:collectionId', (req, res) => getCollection(req, res));
+routes.get('/collections/:collectionId/items', () => {});
+routes.get('/collections/:collectionId/items/:itemId', () => {});
 
 module.exports = {
   getCollections,

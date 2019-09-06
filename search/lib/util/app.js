@@ -1,12 +1,9 @@
 const _ = require('lodash');
 const buildUrl = require('build-url');
 
-const firstIfArray = (v) => {
-  if (_.isArray(v) && v.length === 1) {
-    return _.first(v);
-  }
-  return v;
-};
+function firstIfArray (value) {
+  return Array.isArray(value) && value.length === 1 ? value[0] : value;
+}
 
 const extractParam = (queryStringParams, param, defaultVal = null) => {
   if (queryStringParams && _.has(queryStringParams, param)) {

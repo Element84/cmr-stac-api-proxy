@@ -57,15 +57,6 @@ describe('generateAppUrl', () => {
   });
 });
 
-const { generateSelfUrl } = require('../../lib/util');
-
-describe('generateSelfUrl', () => {
-  it('should generate a self referencing url based on the event.', () => {
-    const event = { headers: { Host: 'example.com' }, path: 'path/to/resource', queryStringParameters: { param: 'test' } };
-    expect(generateSelfUrl(event)).toBe('http://example.com/path/to/resource?param=test');
-  });
-});
-
 const { adaptParams } = require('../../lib/util');
 
 describe('adaptParams', () => {
