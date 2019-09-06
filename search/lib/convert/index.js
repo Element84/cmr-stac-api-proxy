@@ -1,9 +1,9 @@
 const boundingBox = require('./bounding-box');
 const collections = require('./collections');
-const granuleToItem = require('./granule-to-item');
+const granules = require('./granules');
 
 module.exports = {
   ...boundingBox,
   ...collections,
-  ...granuleToItem
+  ...granules
 };
