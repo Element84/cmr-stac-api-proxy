@@ -10,6 +10,7 @@ const swagger = yaml.safeLoad(swaggerFileContents);
 
 // schemaElement is the path in the YAML to the schema of the component being validated
 const createSchemaValidator = (schemaElement) => {
+  // console.log(swagger)
   const schema = Object.assign({}, { components: swagger.components }, swagger.components.schemas[schemaElement]);
   // validates schema
   return ajv.compile(schema);

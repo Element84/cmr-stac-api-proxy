@@ -30,7 +30,7 @@
     "start": "sls offline",
     "deploy": "sls deploy",
     "lint": "eslint *.js ./lib/** ./tests/** --fix", 
-    "test": "jest",
+    "test": "jest --verbose",
     "build:docs": "redoc-cli bundle \"docs/WFS3core+STAC.yaml\" -o docs/index.html --cdn --title \"STAC\"",
     "ci": "npm run lint && npm run test"
   },
