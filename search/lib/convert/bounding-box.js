@@ -8,18 +8,16 @@ function addPointsToBbox (bbox, points) {
     [w, n, e, s] = bbox;
   }
   points.forEach(([lat, lon]) => {
-    // if bbox === true compare variable values with points values to cover largest area
     if (w) {
       w = Math.min(w, lon);
       n = Math.max(n, lat);
       e = Math.max(e, lon);
       s = Math.min(s, lat);
-    } else { // if bbox === false take values from points
+    } else {
       [w, n, e, s] = [lon, lat, lon, lat];
     }
   });
   return [w, n, e, s];
-  // addPointsToBbox ([1, 2, 3, 4], [[5, 6], [7, 8]]) => [1, 7, 8, 4]
 }
 
 function mergeBoxes (box1, box2) {

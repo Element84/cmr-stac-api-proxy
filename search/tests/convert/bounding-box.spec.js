@@ -35,6 +35,10 @@ describe('bbox', () => {
     it('should return the WHOLE_WORLD_BOX', () => {
       expect(addPointsToBbox(WHOLE_WORLD_BBOX, lotsOfPoints)).toEqual(WHOLE_WORLD_BBOX);
     });
+
+    it('should', () => {
+      expect(addPointsToBbox([1, 2, 3, 4], [[5, 6], [7, 8]])).toEqual([1, 7, 8, 4]);
+    });
   });
 
   describe('mergeBoxes', () => {

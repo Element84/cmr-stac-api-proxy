@@ -1,12 +1,28 @@
 const express = require('express');
+const awsServerless = require('aws-serverless-express');
+const awsServerlessMiddleware = require('aws-serverless-express/middleware');
+
 const api = require('./api');
+const { errorHandler } = require('./error-handler');
 
 async function initialize () {
   const application = express();
 
-  application.use(api.wfs);
+  application.use(awsServerlessMiddleware.eventContext());
+  application.use(api.routes);
+  application.use(errorHandler);
 
   return application;
 }
 
-module.exports = initialize;
+/**
+ * Lambda Handler for STAC CMR Search Proxy
+ * @param event
+ * @param context
+ * @returns {Promise<*>}
+ */
+module.exports.handler = async (event, context) => {
+  const application = await initialize();
+  const server = awsServerless.createServer(application);
+  return awsServerless.proxy(server, event, context, 'PROMISE').promise;
+};

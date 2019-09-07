@@ -1,11 +1,20 @@
 const express = require('express');
-const { adaptParams, wfsParamsToCmrParamsMap, wfs, generateAppUrl } = require('../util');
-const cmr = require('../cmr/cmr');
-const { cmrCollToWFSColl } = require('../cmr/cmr_converter');
+const { wfs, generateAppUrl } = require('../util');
+const cmr = require('../cmr');
+const { cmrCollToWFSColl } = require('../convert');
+
+const CONFORMANCE_RESPONSE = {
+  conformsTo: [
+    'http://www.opengis.net/spec/wfs-1/3.0/req/core',
+    'http://www.opengis.net/spec/wfs-1/3.0/req/oas30',
+    'http://www.opengis.net/spec/wfs-1/3.0/req/html',
+    'http://www.opengis.net/spec/wfs-1/3.0/req/geojson'
+  ]
+};
 
 async function getCollections (request, response) {
   const event = request.apiGateway.event;
-  const params = adaptParams(wfsParamsToCmrParamsMap, request.query);
+  const params = cmr.convertParams(cmr.WFS_PARAMS_CONVERSION_MAP, request.query);
   const collections = await cmr.findCollections(params);
   return {
     links: [
@@ -28,8 +37,9 @@ async function getCollection (request, response) {
 const routes = express.Router();
 routes.get('/collections', (req, res) => getCollections(req, res));
 routes.get('/collections/:collectionId', (req, res) => getCollection(req, res));
-routes.get('/collections/:collectionId/items', () => {});
-routes.get('/collections/:collectionId/items/:itemId', () => {});
+routes.get('/collections/:collectionId/items', (req, res) => {});
+routes.get('/collections/:collectionId/items/:itemId', (req, res) => {});
+routes.get('/conformance', (req, res) => res.status(200).json(CONFORMANCE_RESPONSE));
 
 module.exports = {
   getCollections,

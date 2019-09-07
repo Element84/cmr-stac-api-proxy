@@ -1,4 +1,4 @@
-const cmr = require('../cmr/cmr');
+const cmr = require('../cmr');
 const { wfs, generateAppUrl } = require('../util');
 const { WHOLE_WORLD_BBOX, pointStringToPoints, parseOrdinateString, addPointsToBbox, mergeBoxes } = require('./bounding-box');
 
@@ -53,37 +53,46 @@ function cmrGranuleSearchWithCurrentParams (event, collId) {
   return cmr.makeCmrSearchUrl('granules.json', newParams);
 }
 
-function cmrCollToWFSColl (event, cmrColl) {
-  return ({
-    name: cmrColl.id,
-    title: cmrColl.dataset_id,
-    description: cmrColl.summary,
-    links: [
-      wfs.createLink('self', generateAppUrl(event, `/collections/${cmrColl.id}`),
-        'Info about this collection'),
-      wfs.createLink('stac', stacSearchWithCurrentParams(event, cmrColl.id),
-        'STAC Search this collection'),
-      wfs.createLink('cmr', cmrGranuleSearchWithCurrentParams(event, cmrColl.id),
-        'CMR Search this collection'),
-      wfs.createLink('items', generateAppUrl(event, `/collections/${cmrColl.id}/items`),
-        'Granules in this collection'),
-      wfs.createLink('overview', cmr.makeCmrSearchUrl(`/concepts/${cmrColl.id}.html`),
-        'HTML metadata for collection'),
-      wfs.createLink('metadata', cmr.makeCmrSearchUrl(`/concepts/${cmrColl.id}.native`),
-        'Native metadata for collection'),
-      wfs.createLink('metadata', cmr.makeCmrSearchUrl(`/concepts/${cmrColl.id}.umm_json`),
-        'JSON metadata for collection')
-    ],
-    extent: {
-      crs: 'http://www.opengis.net/def/crs/OGC/1.3/CRS84',
-      spatial: cmrCollSpatialToExtents(cmrColl),
-      trs: 'http://www.opengis.net/def/uom/ISO-8601/0/Gregorian',
-      temporal: [
-        cmrColl.time_start,
-        (cmrColl.time_end || cmrColl.time_start)
-      ]
-    }
-  });
+function createExtent (cmrCollection) {
+  return {
+    crs: 'http://www.opengis.net/def/crs/OGC/1.3/CRS84',
+    spatial: cmrCollSpatialToExtents(cmrCollection),
+    trs: 'http://www.opengis.net/def/uom/ISO-8601/0/Gregorian',
+    temporal: [
+      cmrCollection.time_start,
+      (cmrCollection.time_end || cmrCollection.time_start)
+    ]
+  };
+}
+
+function createLinks (event, cmrCollection) {
+  return [
+    wfs.createLink('self', generateAppUrl(event, `/collections/${cmrCollection.id}`),
+      'Info about this collection'),
+    wfs.createLink('stac', stacSearchWithCurrentParams(event, cmrCollection.id),
+      'STAC Search this collection'),
+    wfs.createLink('cmr', cmrGranuleSearchWithCurrentParams(event, cmrCollection.id),
+      'CMR Search this collection'),
+    wfs.createLink('items', generateAppUrl(event, `/collections/${cmrCollection.id}/items`),
+      'Granules in this collection'),
+    wfs.createLink('overview', cmr.makeCmrSearchUrl(`/concepts/${cmrCollection.id}.html`),
+      'HTML metadata for collection'),
+    wfs.createLink('metadata', cmr.makeCmrSearchUrl(`/concepts/${cmrCollection.id}.native`),
+      'Native metadata for collection'),
+    wfs.createLink('metadata', cmr.makeCmrSearchUrl(`/concepts/${cmrCollection.id}.umm_json`),
+      'JSON metadata for collection')
+  ];
+}
+
+function cmrCollToWFSColl (event, cmrCollection) {
+  if (!cmrCollection) return null;
+  return {
+    name: cmrCollection.id,
+    title: cmrCollection.dataset_id,
+    description: cmrCollection.summary,
+    links: createLinks(event, cmrCollection),
+    extent: createExtent(cmrCollection)
+  };
 }
 
 module.exports = {

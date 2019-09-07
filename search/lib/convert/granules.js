@@ -1,6 +1,6 @@
 
 const _ = require('lodash');
-const cmr = require('../cmr/cmr');
+const cmr = require('../cmr');
 const { pointStringToPoints, parseOrdinateString } = require('./bounding-box');
 const { generateAppUrl, wfs, extractParam, generateSelfUrl } = require('../util');
 
@@ -37,7 +37,7 @@ function cmrSpatialToGeoJSONGeometry (cmrGran) {
   if (cmrGran.boxes) {
     geometry = geometry.concat(cmrGran.boxes.map(cmrBoxToGeoJsonPolygon));
   }
-  //Example: points: ['12,34', '45,67']
+  // Example: points: ['12,34', '45,67']
   if (cmrGran.points) {
     geometry = geometry.concat(cmrGran.points.map((ps) => {
       const [lon, lat] = parseOrdinateString(ps);
