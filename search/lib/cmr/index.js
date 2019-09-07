@@ -61,13 +61,6 @@ const findGranules = async (params = {}) => {
   return response.data.feed.entry;
 };
 
-function convertParam (converterPair, key, value) {
-  if (!converterPair) return [key, value];
-
-  const [newName, converter] = converterPair;
-  return [newName, converter(value)];
-}
-
 /**
  * Patch for Object.fromEntries which is introduced in NodeJS 12.
  * https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/fromEntries
@@ -79,6 +72,13 @@ function fromEntries (entries) {
     obj[entry[0]] = entry[1];
     return obj;
   }, {});
+}
+
+function convertParam (converterPair, key, value) {
+  if (!converterPair) return [key, value];
+
+  const [newName, converter] = converterPair;
+  return [newName, converter(value)];
 }
 
 function convertParams (conversionMap, params) {

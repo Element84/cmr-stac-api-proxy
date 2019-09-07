@@ -15,13 +15,10 @@ const createLink = (rel, href, title, type = 'application/json') => ({
   href, rel, type, title
 });
 
-const makeRawResponse = (content) => ({ _raw: content });
-
 module.exports = {
   firstIfArray,
   extractParam,
   wfs: {
     createLink
-  },
-  makeRawResponse
+  }
 };
