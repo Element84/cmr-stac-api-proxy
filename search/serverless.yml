@@ -8,7 +8,7 @@ provider:
 
 functions:
   search-api:
-    handler: index.handler
+    handler: lib/application.handler
     events:
       - http:
           path: /

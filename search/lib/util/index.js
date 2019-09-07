@@ -1,5 +1,6 @@
 const app = require('./app');
 const { UrlBuilder } = require('./url-builder');
+const { WfsLink } = require('./wfs-link');
 
 function createUrl (host, path, queryParams) {
   return UrlBuilder.create()
@@ -40,5 +41,6 @@ module.exports = {
   createSecureUrl,
   generateAppUrl,
   generateSelfUrl,
-  identity
+  identity,
+  WfsLink
 };
