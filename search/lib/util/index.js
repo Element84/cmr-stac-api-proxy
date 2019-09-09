@@ -24,7 +24,7 @@ function generateAppUrl (event, path, queryParams = null) {
   const host = event.headers.Host;
   const protocol = event.headers['X-Forwarded-Proto'] || 'http';
   const newPath = host.includes('amazonaws.com') ? `${event.requestContext.stage}/${path}` : path;
-  return protocol === 'http' ? createUrl(host, newPath, queryParams) : createSecureUrl(host, newPath, queryParams);
+  return protocol === 'https' ? createSecureUrl(host, newPath, queryParams) : createUrl(host, newPath, queryParams);
 }
 
 function generateSelfUrl (event) {
