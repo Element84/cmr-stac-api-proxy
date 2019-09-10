@@ -1,4 +1,4 @@
-const { createSchemaValidator } = require('../../lib/validator/validator');
+const { createSchemaValidator } = require('../../lib/validator');
 const fs = require('fs');
 const yaml = require('js-yaml');
 
