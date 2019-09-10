@@ -1,21 +1,27 @@
 const fs = require('fs');
 const yaml = require('js-yaml');
+const path = require('path');
 const Ajv = require('ajv');
 const ajv = new Ajv({ allErrors: true });
 
-// grabs docs
-const swaggerFileContents = fs.readFileSync('./docs/WFS3core+STAC.yaml');
-// create a JSON object
-const swagger = yaml.safeLoad(swaggerFileContents);
+const loadOpenApiYaml = (swaggerYaml) => {
+  if (!swaggerYaml) throw new Error('Missing Yaml path');
+  let yamlFile;
+  if (path.isAbsolute(swaggerYaml)) {
+    yamlFile = swaggerYaml;
+  } else {
+    yamlFile = path.join(__dirname, swaggerYaml);
+  }
 
-// schemaElement is the path in the YAML to the schema of the component being validated
-const createSchemaValidator = (schemaElement) => {
-  // console.log(swagger)
-  const schema = Object.assign({}, { components: swagger.components }, swagger.components.schemas[schemaElement]);
-  // validates schema
+  return yaml.safeLoad(fs.readFileSync(yamlFile));
+};
+
+const createSchemaValidator = (schema) => {
+  if (!schema) throw new Error('Missing a schema.');
   return ajv.compile(schema);
 };
 
 module.exports = {
-  createSchemaValidator
+  createSchemaValidator,
+  loadOpenApiYaml
 };

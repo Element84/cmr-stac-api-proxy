@@ -3,7 +3,7 @@ const express = require('express');
 const awsServerless = require('aws-serverless-express');
 const awsServerlessMiddleware = require('aws-serverless-express/middleware');
 
-const { createSchemaValidator } = require('./lib/validator/validator');
+const { createSchemaValidator } = require('./lib/validator');
 const { getRoot, getConformance, collections, stac } = require('./lib/routes');
 const { errorHandler } = require('./lib/error-handler');
 

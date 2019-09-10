@@ -1,122 +1,75 @@
-const { createSchemaValidator } = require('../../lib/validator');
-const fs = require('fs');
-const yaml = require('js-yaml');
+const { createSchemaValidator, loadOpenApiYaml } = require('../../lib/validator');
 
-const yamlContents = fs.readFileSync('./docs/WFS3core+STAC.yaml');
-const yamlSchema = yaml.safeLoad(yamlContents);
+describe('createSchemaValidator', () => {
+  const testSchema = {
+    properties: {
+      name: {
+        type: 'string'
+      },
+      price: {
+        type: 'number'
+      }
+    }
+  };
 
-describe('validator', () => {
-  // console.log(createSchemaValidator())
-
-  // const valid = createSchemaValidator(testObj);
-
-  it.skip('should validate a swagger component', () => {
-    expect(createSchemaValidator(yamlSchema.components.schemas.content)).toBe(true);
+  it('should exist', () => {
+    expect(() => createSchemaValidator).toBeDefined();
   });
 
-  it.skip('should validate a schema with a schema element', () => {
-    expect(createSchemaValidator('#/components/schemas/exception')).toBeTruthy();
+  it('should require one input parameter', () => {
+    expect(() => createSchemaValidator()).toThrow();
+  });
+
+  it('return a validation function', () => {
+    expect(typeof createSchemaValidator(testSchema)).toEqual('function');
+  });
+
+  it('should validate an object', () => {
+    const validObj = {
+      name: 'coffee',
+      price: 2.20
+    };
+    const validator = createSchemaValidator(testSchema);
+    expect(validator(validObj)).toEqual(true);
+    expect(validator.errors).toEqual(null)
+  });
+
+  it('should invalidate an object', () => {
+    const invalidObj = {
+      name: 42,
+      price: 'hello'
+    };
+    const validator = createSchemaValidator(testSchema);
+    expect(validator(invalidObj)).toEqual(false);
+    expect(validator.errors).toEqual(
+      [{ keyword: 'type',
+        dataPath: '.name',
+        schemaPath: '#/properties/name/type',
+        params: { type: 'string' },
+        message: 'should be string' },
+      { keyword: 'type',
+        dataPath: '.price',
+        schemaPath: '#/properties/price/type',
+        params: { type: 'number' },
+        message: 'should be number' }]
+    );
   });
 });
 
-// expect(createSchemaValidator()).toEqual({
-//   schema: {
-//     components: {
-//       parameters: {
-//         limit: {
+describe('loadOpenApiYaml', () => {
+  it('should exist', () => {
+    expect(() => loadOpenApiYaml).toBeDefined();
+  });
 
-//         },
-//         bbox: {
+  it('should require a single parameter', () => {
+    expect(() => loadOpenApiYaml()).toThrow();
+  });
 
-//         },
-//         time: {
+  it('should be able to load a file with a relative path', () => {
+    expect(loadOpenApiYaml('../../tests/validator/test.yaml')).toEqual({ test: 'test' });
+  });
 
-//         },
-//         providerId: {
-
-//         },
-//         collectionId: {
-
-//         },
-//         queryCollectionId: {
-
-//         },
-//         featureId: {
-
-//         }
-//       },
-//       schemas: {
-//         exception: {
-
-//         },
-//         root: {
-
-//         },
-//         'req-classes': {
-
-//         },
-//         link: {
-
-//         },
-//         content: {
-
-//         },
-//         collectionInfo: {
-
-//         },
-//         extent: {
-
-//         },
-//         featureCollectionGeoJSON: {
-
-//         },
-//         geometryGeoJSON: {
-
-//         },
-//         searchBody: {
-
-//         },
-//         bbox: {
-
-//         },
-//         bboxFilter: {
-
-//         },
-//         timeFilter: {
-
-//         },
-//         intersectsFilter: {
-
-//         },
-//         polygon: {
-
-//         },
-//         polygon2D: {
-
-//         },
-//         linearRing2D: {
-
-//         },
-//         time: {
-
-//         },
-//         itemCollection: {
-
-//         },
-//         item: {
-
-//         },
-//         itemProperties: {
-
-//         },
-//         itemCollectionLinks: {
-
-//         }
-//       }
-//     },
-//     errors: null,
-//     refs: {},
-//     refVal: [[]],
-//     root: []
-//   }
-// })
+  it('should be able to accept an absolute path', () => {
+    expect(loadOpenApiYaml('/Users/drew/Projects/cmr/cmr-stac-api-proxy/search/tests/validator/test.yaml')).toEqual({ test: 'test' });
+  });
+});
