@@ -56,23 +56,3 @@ describe('generateAppUrl', () => {
     expect(generateAppUrl(event, path, params)).toBe('http://amazonaws.com/dev/path/to/resource?param=test');
   });
 });
-
-const { generateSelfUrl } = require('../../lib/util');
-
-describe('generateSelfUrl', () => {
-  it('should generate a self referencing url based on the event.', () => {
-    const event = { headers: { Host: 'example.com' }, path: 'path/to/resource', queryStringParameters: { param: 'test' } };
-    expect(generateSelfUrl(event)).toBe('http://example.com/path/to/resource?param=test');
-  });
-});
-
-const { adaptParams } = require('../../lib/util');
-
-describe('adaptParams', () => {
-  it('should create a new set of params based on a conversion Map.', () => {
-    const map = { originalKey: ['key', (v) => v.toUpperCase()] };
-    const original = { originalKey: 'test' };
-    const converted = { key: 'TEST' };
-    expect(adaptParams(map, original)).toEqual(converted);
-  });
-});

@@ -1,7 +1,29 @@
+const path = require('path');
+const express = require('express');
+
+const { WfsLink, generateAppUrl } = require('../util');
+
 const stac = require('./stac');
 const wfs = require('./wfs');
 
+function createRootResponse (event) {
+  return {
+    links: [
+      WfsLink.create('self', generateAppUrl(event, ''), 'this document'),
+      WfsLink.create('conformance', generateAppUrl(event, '/conformance'), 'WFS 3.0 conformance classes implemented by this server'),
+      WfsLink.create('data', generateAppUrl(event, '/collections'), 'Metadata about the feature collections')
+    ]
+  };
+}
+
+const routes = express.Router();
+
+routes.use(stac.routes);
+routes.use(wfs.routes);
+routes.use('/docs', express.static(path.join(__dirname, '../../docs')));
+routes.use('/', (req, res) =>
+  req.accepts('html') === 'html' ? res.redirect('/docs/index.html') : res.status(200).json(createRootResponse(req.apiGateway.event)));
+
 module.exports = {
-  stac,
-  wfs
+  routes
 };

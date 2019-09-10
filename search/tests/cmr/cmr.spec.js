@@ -1,5 +1,5 @@
 const axios = require('axios');
-const { makeCmrSearchUrl } = require('../../lib/cmr/cmr');
+const { makeCmrSearchUrl } = require('../../lib/cmr');
 
 describe('cmr', () => {
   let path, params;
@@ -23,7 +23,7 @@ describe('cmr', () => {
     });
   });
 
-  const { findCollections } = require('../../lib/cmr/cmr');
+  const { findCollections } = require('../../lib/cmr');
 
   describe('findCollections', () => {
     beforeEach(() => {
@@ -55,7 +55,7 @@ describe('cmr', () => {
     });
   });
 
-  const { findGranules } = require('../../lib/cmr/cmr');
+  const { findGranules } = require('../../lib/cmr');
 
   describe('findGranules', () => {
     beforeEach(() => {
@@ -86,7 +86,7 @@ describe('cmr', () => {
     });
   });
 
-  const { getCollection } = require('../../lib/cmr/cmr');
+  const { getCollection } = require('../../lib/cmr');
 
   // run findCollections
   // findCollections => ${url}/collections.json?has_granules=true&downloadable=true&concept_id=10
@@ -117,6 +117,17 @@ describe('cmr', () => {
       expect(axios.get.mock.calls.length).toBe(1);
       expect(axios.get.mock.calls[0][0]).toBe('https://cmr.earthdata.nasa.gov/search/collections.json');
       expect(result).toBe(null);
+    });
+  });
+
+  const { convertParams } = require('../../lib/cmr');
+
+  describe('convertParams', () => {
+    it('should create a new set of params based on a conversion Map.', () => {
+      const map = { originalKey: ['key', (v) => v.toUpperCase()] };
+      const original = { originalKey: 'test' };
+      const converted = { key: 'TEST' };
+      expect(convertParams(map, original)).toEqual(converted);
     });
   });
 });

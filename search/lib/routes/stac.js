@@ -1,6 +1,6 @@
 const _ = require('lodash');
 const { adaptParams } = require('../util');
-const cmr = require('../cmr/cmr');
+const cmr = require('../cmr');
 const cmrConverter = require('../convert');
 
 const stacParamsToCmrParamsMap = {

@@ -12,7 +12,7 @@ describe('granuleToItem', () => {
       const polygon = ['10,10,30,10,30,20,10,20,10,10'];
       expect(cmrPolygonToGeoJsonPolygon(polygon)).toEqual({
         type: 'Polygon',
-        coordinates: [ [[10, 10], [30, 10], [30, 20], [10, 20], [10, 10]] ]
+        coordinates: [[[10, 10], [30, 10], [30, 20], [10, 20], [10, 10]]]
       });
     });
 
@@ -20,7 +20,7 @@ describe('granuleToItem', () => {
       const polygon = ['10,10,30,10,30,20,10,20,10,10', '10,10,30,10,30,20,10,20,10,10'];
       expect(cmrPolygonToGeoJsonPolygon(polygon)).toEqual({
         type: 'Polygon',
-        coordinates: [[[10, 10], [30, 10], [30, 20], [10, 20], [10, 10]], [[10, 10], [30, 10], [30, 20], [10, 20], [10, 10]]],
+        coordinates: [[[10, 10], [30, 10], [30, 20], [10, 20], [10, 10]], [[10, 10], [30, 10], [30, 20], [10, 20], [10, 10]]]
       });
     });
   });
@@ -75,7 +75,7 @@ describe('granuleToItem', () => {
 
       expect(cmrSpatialToGeoJSONGeometry(cmrSpatial)).toEqual({
         type: 'Polygon',
-        coordinates: [ [[12, 34], [56, 78]] ]
+        coordinates: [[[12, 34], [56, 78]]]
       });
     });
 
@@ -87,11 +87,11 @@ describe('granuleToItem', () => {
         type: 'GeometryCollection',
         geometries: [{
           type: 'Polygon',
-          coordinates: [ [[12, 34], [56, 78]] ]
+          coordinates: [[[12, 34], [56, 78]]]
         },
         {
           type: 'Polygon',
-          coordinates: [ [[98, 76], [54, 32]] ]
+          coordinates: [[[98, 76], [54, 32]]]
         }]
       });
     });
@@ -115,7 +115,7 @@ describe('granuleToItem', () => {
     it('should return an object with multiple GeoJSON gemoetries for the given boxes', () => {
       cmrSpatial = {
         boxes: ['22,44.4,93.9,77', '32,44,10,18'] // s, w, n, e
-      }
+      };
       expect(cmrSpatialToGeoJSONGeometry(cmrSpatial)).toEqual({
         type: 'GeometryCollection',
         geometries: [{
@@ -170,9 +170,9 @@ describe('granuleToItem', () => {
       data_center: 'USA',
       points: ['77,39']
     };
-  
+
     const event = { headers: { Host: 'example.com' }, queryStringParameters: [] };
-  
+
     it('should return a FeatureGeoJSON from a cmrGran', () => {
       expect(cmrGranToFeatureGeoJSON(event, cmrGran)).toEqual({
         type: 'Feature',
@@ -222,9 +222,9 @@ describe('granuleToItem', () => {
       data_center: 'USA',
       points: ['77,39']
     }];
-  
+
     const event = { headers: { Host: 'example.com' }, queryStringParameters: [] };
-  
+
     it('should return a cmrGranule to a FeatureCollection', () => {
       expect(cmrGranulesToFeatureCollection(event, cmrGran)).toEqual({
         type: 'FeatureCollection',
@@ -255,11 +255,10 @@ describe('granuleToItem', () => {
           }
         }],
         links: {
-          self: 'http://example.com/undefined?',
-          next: 'http://example.com/undefined?page_num=2'
+          self: 'http://example.com',
+          next: 'http://example.com?page_num=2'
         }
       });
     });
   });
-  
 });
