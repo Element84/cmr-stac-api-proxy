@@ -16,6 +16,10 @@ const loadOpenApiYaml = (swaggerYaml) => {
   return yaml.safeLoad(fs.readFileSync(yamlFile));
 };
 
+const getSchema = (schemaName) => {
+  if (!schemaName) throw new Error('Missing schema name');
+};
+
 const createSchemaValidator = (schema) => {
   if (!schema) throw new Error('Missing a schema.');
   return ajv.compile(schema);
@@ -23,5 +27,6 @@ const createSchemaValidator = (schema) => {
 
 module.exports = {
   createSchemaValidator,
+  getSchema,
   loadOpenApiYaml
 };
