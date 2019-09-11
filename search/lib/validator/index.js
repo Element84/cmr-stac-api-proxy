@@ -18,6 +18,8 @@ const loadOpenApiYaml = (swaggerYaml) => {
 
 const getSchema = (schemaName) => {
   if (!schemaName) throw new Error('Missing schema name');
+  if (!schemaName.components) throw new Error('No schema found');
+  return schemaName.components;
 };
 
 const createSchemaValidator = (schema) => {

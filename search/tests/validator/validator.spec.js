@@ -1,3 +1,4 @@
+const path = require('path');
 const { createSchemaValidator, loadOpenApiYaml, getSchema } = require('../../lib/validator');
 
 describe('createSchemaValidator', () => {
@@ -70,7 +71,7 @@ describe('loadOpenApiYaml', () => {
   });
 
   it.skip('should be able to accept an absolute path', () => {
-    expect(loadOpenApiYaml('/Users/drew/Projects/cmr/cmr-stac-api-proxy/search/tests/validator/test.yaml')).toEqual({ test: 'test' });
+    expect(loadOpenApiYaml(path.join(__dirname, '../../tests/validator/test.yaml'))).toEqual({ test: 'test' });
   });
 });
 
@@ -81,14 +82,24 @@ describe('getSchema', () => {
     }
   };
 
+  const invalidSchema = {
+    test: 'test'
+  };
+
   it('should exist', () => {
     // console.log(getSchema)
     expect(getSchema).toBeDefined();
   });
+
   it('should require a schema name as a parameter', () => {
     expect(() => getSchema()).toThrow();
   });
-  it.skip('should grab a schema from a loaded file', () => {
-    expect(() => getSchema(validSchema)).toEqual({ test: 'test' });
+
+  it('should check to make sure there is a component schema(s) available', () => {
+    expect(() => getSchema(invalidSchema)).toThrow();
+  });
+
+  it('should grab a schema from a loaded file', () => {
+    expect(getSchema(validSchema)).toEqual({ test: 'test' });
   });
 });
