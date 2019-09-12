@@ -27,8 +27,15 @@ const createSchemaValidator = (schema) => {
   return ajv.compile(schema);
 };
 
+const validateSchema = (swaggerYaml) => {
+  if (!swaggerYaml) throw new Error('Missing swagger yaml');
+  const load = loadOpenApiYaml(swaggerYaml);
+  return createSchemaValidator(getSchema(load));
+};
+
 module.exports = {
   createSchemaValidator,
   getSchema,
-  loadOpenApiYaml
+  loadOpenApiYaml,
+  validateSchema
 };
