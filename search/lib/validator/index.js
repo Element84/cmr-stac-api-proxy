@@ -6,14 +6,14 @@ const ajv = new Ajv({ allErrors: true });
 
 const loadOpenApiYaml = (swaggerYaml) => {
   if (!swaggerYaml) throw new Error('Missing Yaml path');
-  let yamlFile;
+  let yamlSchemaFile;
   if (path.isAbsolute(swaggerYaml)) {
-    yamlFile = swaggerYaml;
+    yamlSchemaFile = swaggerYaml;
   } else {
-    yamlFile = path.join(__dirname, swaggerYaml);
+    yamlSchemaFile = path.join(__dirname, swaggerYaml);
   }
 
-  return yaml.safeLoad(fs.readFileSync(yamlFile));
+  return yaml.safeLoad(fs.readFileSync(yamlSchemaFile));
 };
 
 const getSchema = (schemaName) => {
@@ -27,10 +27,12 @@ const createSchemaValidator = (schema) => {
   return ajv.compile(schema);
 };
 
-const validateSchema = (swaggerYaml) => {
-  if (!swaggerYaml) throw new Error('Missing swagger yaml');
-  const load = loadOpenApiYaml(swaggerYaml);
-  return createSchemaValidator(getSchema(load));
+const validateSchema = (componentName, collectionObj, yamlSchemaFile = '../../docs/WFS3core+STAC.yaml') => {
+  if (!componentName || !collectionObj) throw new Error('Missing parameters');
+  const load = loadOpenApiYaml(yamlSchemaFile);
+  const schemaComponents = getSchema(load);
+  const validator = createSchemaValidator(schemaComponents.schemas[componentName]);
+  return validator(collectionObj);
 };
 
 module.exports = {

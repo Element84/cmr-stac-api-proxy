@@ -105,19 +105,23 @@ describe('getSchema', () => {
 });
 
 describe('validateSchema', () => {
+  const testObj = {
+    type: 'Point'
+  };
+
   it('should exist', () => {
     expect(validateSchema).toBeDefined();
   });
 
-  it('should take in a swaggerYaml as a parameter', () => {
+  it('should take in a componentName and collectionObject as parameters', () => {
     expect(() => validateSchema()).toThrow();
   });
 
-  it('should return a validation function after being passed a swagger yaml file', () => {
-    expect(typeof validateSchema('../../tests/validator/anotherTest.yaml')).toEqual('function');
+  it('should take in a WFS3/STAC component name and a collection object and return a boolean', () => {
+    expect(typeof validateSchema('geometryGeoJSON', testObj)).toEqual('boolean');
   });
 
-  it('should throw an error after being passed a swagger yaml file if the file is invalid ', () => {
-    expect(() => validateSchema('../../tests/validator/test.yaml')).toThrow()
+  it('should validate the test object against the schema for the given component', () => {
+    expect(validateSchema('geometryGeoJSON', testObj)).toEqual(true);
   });
 });
