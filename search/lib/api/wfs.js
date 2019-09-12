@@ -1,7 +1,7 @@
 const express = require('express');
 const { wfs, generateAppUrl } = require('../util');
 const cmr = require('../cmr');
-const { cmrCollToWFSColl } = require('../convert');
+const { cmrCollToWFSColl, cmrGranToFeatureGeoJSON } = require('../convert');
 
 async function getCollections (request, response) {
   const event = request.apiGateway.event;
@@ -24,6 +24,29 @@ async function getCollection (request, response) {
   response.status(200).json(collectionResponse);
 }
 
+async function getGranules (request, response) {
+  const event = request.apiGateway.event;
+  const conceptId = request.params.collectionId;
+  const params = Object.assign({ collection_concept_id: conceptId }, cmr.convertParams(cmr.WFS_PARAMS_CONVERSION_MAP, request.query));
+  const granules = await cmr.findGranules(params);
+  const granulesResponse = {
+    features: granules.map(gran => cmrGranToFeatureGeoJSON(event, gran))
+  };
+  response.status(200).json(granulesResponse);
+}
+
+async function getGranule (request, response) {
+  const event = request.apiGateway.event;
+  const collConceptId = request.params.collectionId;
+  const conceptId = request.params.itemId;
+  const granules = await cmr.findGranules({
+    collection_concept_id: collConceptId,
+    concept_id: conceptId
+  });
+  const granuleResponse = cmrGranToFeatureGeoJSON(event, granules[0]);
+  response.status(200).json(granuleResponse);
+}
+
 const CONFORMANCE_RESPONSE = {
   conformsTo: [
     'http://www.opengis.net/spec/wfs-1/3.0/req/core',
@@ -36,12 +59,14 @@ const CONFORMANCE_RESPONSE = {
 const routes = express.Router();
 routes.get('/collections', (req, res) => getCollections(req, res));
 routes.get('/collections/:collectionId', (req, res) => getCollection(req, res));
-routes.get('/collections/:collectionId/items', (req, res) => {});
-routes.get('/collections/:collectionId/items/:itemId', (req, res) => {});
+routes.get('/collections/:collectionId/items', (req, res) => getGranules(req, res));
+routes.get('/collections/:collectionId/items/:itemId', (req, res) => getGranule(req, res));
 routes.get('/conformance', (req, res) => res.status(200).json(CONFORMANCE_RESPONSE));
 
 module.exports = {
   getCollections,
   getCollection,
+  getGranules,
+  getGranule,
   routes
 };
