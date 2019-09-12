@@ -113,19 +113,7 @@ describe('validateSchema', () => {
     expect(() => validateSchema()).toThrow();
   });
 
-  it.skip('should load a swagger yaml using loadOpenApiYaml', () => {
-    expect(validateSchema('../../tests/validator/test.yaml')).toEqual({ test: 'test' });
-  });
-
-  it.skip('should grab a schema from a swagger yaml file', () => {
-    expect(validateSchema('../../tests/validator/anotherTest.yaml')).toEqual({ schema: 'I am Schema!' });
-  });
-
-  it.skip('should validate a schema after being passed in a swagger yaml file', () => {
-    expect(validateSchema('../../tests/validator/anotherTest.yaml')).toBe(true);
-  });
-
-  it.skip('should invalidate an invalid schema after being passed in a swagger yaml file', () => {
-    expect(validateSchema('../../tests/validator/test.yaml')).toBe(false); // rework to have a valid schema to validate against and another yaml file with an invalid schema
+  it('should return a validation function after being passed in a swagger yaml file', () => {
+    expect(typeof validateSchema('../../tests/validator/anotherTest.yaml')).toEqual('function');
   });
 });
