@@ -113,7 +113,11 @@ describe('validateSchema', () => {
     expect(() => validateSchema()).toThrow();
   });
 
-  it('should return a validation function after being passed in a swagger yaml file', () => {
+  it('should return a validation function after being passed a swagger yaml file', () => {
     expect(typeof validateSchema('../../tests/validator/anotherTest.yaml')).toEqual('function');
+  });
+
+  it('should throw an error after being passed a swagger yaml file if the file is invalid ', () => {
+    expect(() => validateSchema('../../tests/validator/test.yaml')).toThrow()
   });
 });
