@@ -72,8 +72,8 @@ const findGranules = async (params = {}) => {
  * @returns object e.g. {name: "value"}
  */
 function fromEntries (entries) {
-  if(!entries) throw new Error ('Missing entries!')
-  
+  if (!entries) throw new Error('Missing entries!');
+
   return entries.reduce((obj, entry) => {
     obj[entry[0]] = entry[1];
     return obj;

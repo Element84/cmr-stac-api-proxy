@@ -155,15 +155,15 @@ describe('cmr', () => {
 
   describe('fromEntries', () => {
     it('should exist', () => {
-      expect(fromEntries).toBeDefined()
-    })
+      expect(fromEntries).toBeDefined();
+    });
 
     it('should accept a parameter', () => {
-      expect(() => fromEntries()).toThrow()
-    })
+      expect(() => fromEntries()).toThrow();
+    });
 
     it('should return an object made of entries', () => {
-      expect(fromEntries([['a', 'd'], ['b', 'e'], ['c', 'f']])).toEqual({a: 'd', b: 'e', c: 'f'})
-    })
-  })
+      expect(fromEntries([['a', 'd'], ['b', 'e'], ['c', 'f']])).toEqual({ a: 'd', b: 'e', c: 'f' });
+    });
+  });
 });
