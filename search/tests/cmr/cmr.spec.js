@@ -1,29 +1,55 @@
 const axios = require('axios');
-const { makeCmrSearchUrl } = require('../../lib/cmr');
+const { makeCmrSearchUrl, cmrSearch, findCollections, findGranules, getCollection, convertParams } = require('../../lib/cmr');
 
 describe('cmr', () => {
-  let path, params;
+  let path, params, headers;
 
   beforeEach(() => {
     path = 'path/to/resource';
     params = { param: 'test' };
+    headers = {
+      'Client-Id': 'cmr-stac-api-proxy'
+    };
   });
 
   describe('makeCmrSearchUrl', () => {
+    it('should exist', () => {
+      expect(makeCmrSearchUrl).toBeDefined()
+    })
     it('should create a url with zero params.', () => {
       expect(makeCmrSearchUrl()).toBe('https://cmr.earthdata.nasa.gov/search');
     });
 
-    it('should create a url with path.', () => {
+    it('should create a url with path and no query params', () => {
       expect(makeCmrSearchUrl(path)).toBe('https://cmr.earthdata.nasa.gov/search/path/to/resource');
     });
 
-    it('should create a url based on query params', () => {
+    it('should create a url with a path and query params', () => {
       expect(makeCmrSearchUrl(path, params)).toBe('https://cmr.earthdata.nasa.gov/search/path/to/resource?param=test');
     });
   });
 
-  const { findCollections } = require('../../lib/cmr');
+  describe('cmrSearch', () => {
+    // beforeEach(() => {
+    //   axios.get = jest.fn()
+    //   const url = 'https://example.com'
+    // })
+    
+    // afterEach(() => {
+    //   jest.restoreAllMocks();
+    // });
+
+    const url = 'https://example.com'
+    console.log(cmrSearch(url, {params, headers}))
+
+    it('should exist', () => {
+      expect(cmrSearch).toBeDefined()
+    })
+
+    // it('should return a url with one param', () => {
+    //   expect(cmrSearch(url)).toEqual({})
+    // })
+  })
 
   describe('findCollections', () => {
     beforeEach(() => {
@@ -55,8 +81,6 @@ describe('cmr', () => {
     });
   });
 
-  const { findGranules } = require('../../lib/cmr');
-
   describe('findGranules', () => {
     beforeEach(() => {
       axios.get = jest.fn();
@@ -85,8 +109,6 @@ describe('cmr', () => {
       expect(result).toEqual({ test: 'value' });
     });
   });
-
-  const { getCollection } = require('../../lib/cmr');
 
   // run findCollections
   // findCollections => ${url}/collections.json?has_granules=true&downloadable=true&concept_id=10
@@ -119,8 +141,6 @@ describe('cmr', () => {
       expect(result).toBe(null);
     });
   });
-
-  const { convertParams } = require('../../lib/cmr');
 
   describe('convertParams', () => {
     it('should create a new set of params based on a conversion Map.', () => {
