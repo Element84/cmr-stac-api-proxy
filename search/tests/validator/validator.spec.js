@@ -91,7 +91,7 @@ describe('getSchema', () => {
     expect(getSchema).toBeDefined();
   });
 
-  it('should require a schema name as a parameter', () => {
+  it('should require a schema component as a parameter', () => {
     expect(() => getSchema()).toThrow();
   });
 
