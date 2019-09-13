@@ -1,5 +1,5 @@
 const axios = require('axios');
-const { makeCmrSearchUrl, cmrSearch, findCollections, findGranules, getCollection, convertParams } = require('../../lib/cmr');
+const { makeCmrSearchUrl, cmrSearch, findCollections, findGranules, getCollection, convertParams, fromEntries } = require('../../lib/cmr');
 
 describe('cmr', () => {
   let path, params;
@@ -152,4 +152,18 @@ describe('cmr', () => {
       expect(convertParams(map, original)).toEqual(converted);
     });
   });
+
+  describe('fromEntries', () => {
+    it('should exist', () => {
+      expect(fromEntries).toBeDefined()
+    })
+
+    it('should accept a parameter', () => {
+      expect(() => fromEntries()).toThrow()
+    })
+
+    it('should return an object made of entries', () => {
+      expect(fromEntries([['a', 'd'], ['b', 'e'], ['c', 'f']])).toEqual({a: 'd', b: 'e', c: 'f'})
+    })
+  })
 });
