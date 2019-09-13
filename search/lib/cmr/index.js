@@ -1,6 +1,6 @@
 const _ = require('lodash');
 const axios = require('axios');
-const buildUrl = require('build-url');
+const { UrlBuilder } = require('../util/url-builder');
 const { parseOrdinateString, identity } = require('../util');
 
 const STAC_SEARCH_PARAMS_CONVERSION_MAP = {
@@ -28,15 +28,21 @@ const WFS_PARAMS_CONVERSION_MAP = {
 // https://github.com/Element84/catalog-api-spec/blob/dev/implementations/e84/src/e84_api_impl/search_service.clj
 // has mappings from JSON response to GeoJSON features
 
-const makeCmrSearchUrl = (path, queryParams = null) => buildUrl(
-  'https://cmr.earthdata.nasa.gov/search', { path, queryParams }
-);
+const makeCmrSearchUrl = (path, queryParams = null) => {
+  return UrlBuilder.create()
+    .withProtocol('https')
+    .withHost('cmr.earthdata.nasa.gov/search')
+    .withPath(path)
+    .withQuery(queryParams)
+    .build();
+};
 
 const headers = {
   'Client-Id': 'cmr-stac-api-proxy'
 };
 
 const cmrSearch = async (url, params) => {
+  if (!url || !params) throw new Error('Missing url or parameters');
   console.log(`CMR Search ${url} ${JSON.stringify(params)}`);
   return axios.get(url, { params, headers });
 };
@@ -50,9 +56,7 @@ const findCollections = async (params = {}) => {
 
 const getCollection = async (conceptId) => {
   const collections = await findCollections({ concept_id: conceptId });
-  if (collections.length > 0) {
-    return collections[0];
-  }
+  if (collections.length > 0) return collections[0];
   return null;
 };
 
@@ -68,6 +72,8 @@ const findGranules = async (params = {}) => {
  * @returns object e.g. {name: "value"}
  */
 function fromEntries (entries) {
+  if (!entries) throw new Error('Missing entries!');
+
   return entries.reduce((obj, entry) => {
     obj[entry[0]] = entry[1];
     return obj;
@@ -92,8 +98,10 @@ module.exports = {
   STAC_QUERY_PARAMS_CONVERSION_MAP,
   WFS_PARAMS_CONVERSION_MAP,
   makeCmrSearchUrl,
+  cmrSearch,
   findCollections,
   findGranules,
   getCollection,
-  convertParams
+  convertParams,
+  fromEntries
 };

@@ -1,5 +1,5 @@
 const axios = require('axios');
-const { makeCmrSearchUrl } = require('../../lib/cmr');
+const { makeCmrSearchUrl, cmrSearch, findCollections, findGranules, getCollection, convertParams, fromEntries } = require('../../lib/cmr');
 
 describe('cmr', () => {
   let path, params;
@@ -10,20 +10,52 @@ describe('cmr', () => {
   });
 
   describe('makeCmrSearchUrl', () => {
+    it('should exist', () => {
+      expect(makeCmrSearchUrl).toBeDefined();
+    });
     it('should create a url with zero params.', () => {
       expect(makeCmrSearchUrl()).toBe('https://cmr.earthdata.nasa.gov/search');
     });
 
-    it('should create a url with path.', () => {
+    it('should create a url with path and no query params', () => {
       expect(makeCmrSearchUrl(path)).toBe('https://cmr.earthdata.nasa.gov/search/path/to/resource');
     });
 
-    it('should create a url based on query params', () => {
+    it('should create a url with a path and query params', () => {
       expect(makeCmrSearchUrl(path, params)).toBe('https://cmr.earthdata.nasa.gov/search/path/to/resource?param=test');
     });
   });
 
-  const { findCollections } = require('../../lib/cmr');
+  describe('cmrSearch', () => {
+    beforeEach(() => {
+      axios.get = jest.fn();
+    });
+
+    afterEach(() => {
+      jest.restoreAllMocks();
+    });
+
+    it('should exist', () => {
+      expect(cmrSearch).toBeDefined();
+    });
+
+    it('should take in a url and a params object', async () => {
+      const error = new Error('Missing url or parameters');
+      expect.assertions(1);
+      try {
+        await cmrSearch();
+      } catch (e) {
+        expect(e).toEqual(error);
+      }
+    });
+
+    it('should return a cmr collection', async () => {
+      cmrSearch('https://example.com', { has_granules: true, downloadable: true });
+      expect(axios.get.mock.calls.length).toBe(1);
+      expect(axios.get.mock.calls[0][0]).toBe('https://example.com');
+      expect(axios.get.mock.calls[0][1]).toEqual({ headers: { 'Client-Id': 'cmr-stac-api-proxy' }, params: { has_granules: true, downloadable: true } });
+    });
+  });
 
   describe('findCollections', () => {
     beforeEach(() => {
@@ -55,8 +87,6 @@ describe('cmr', () => {
     });
   });
 
-  const { findGranules } = require('../../lib/cmr');
-
   describe('findGranules', () => {
     beforeEach(() => {
       axios.get = jest.fn();
@@ -86,12 +116,6 @@ describe('cmr', () => {
     });
   });
 
-  const { getCollection } = require('../../lib/cmr');
-
-  // run findCollections
-  // findCollections => ${url}/collections.json?has_granules=true&downloadable=true&concept_id=10
-  // getCollection => findCollections[0] || null
-
   describe('getCollections', () => {
     beforeEach(() => {
       axios.get = jest.fn();
@@ -120,14 +144,26 @@ describe('cmr', () => {
     });
   });
 
-  const { convertParams } = require('../../lib/cmr');
-
   describe('convertParams', () => {
     it('should create a new set of params based on a conversion Map.', () => {
       const map = { originalKey: ['key', (v) => v.toUpperCase()] };
       const original = { originalKey: 'test' };
       const converted = { key: 'TEST' };
       expect(convertParams(map, original)).toEqual(converted);
+    });
+  });
+
+  describe('fromEntries', () => {
+    it('should exist', () => {
+      expect(fromEntries).toBeDefined();
+    });
+
+    it('should accept a parameter', () => {
+      expect(() => fromEntries()).toThrow();
+    });
+
+    it('should return an object made of entries', () => {
+      expect(fromEntries([['a', 'd'], ['b', 'e'], ['c', 'f']])).toEqual({ a: 'd', b: 'e', c: 'f' });
     });
   });
 });
