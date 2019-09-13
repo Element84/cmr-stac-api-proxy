@@ -2,20 +2,17 @@ const axios = require('axios');
 const { makeCmrSearchUrl, cmrSearch, findCollections, findGranules, getCollection, convertParams } = require('../../lib/cmr');
 
 describe('cmr', () => {
-  let path, params, headers;
+  let path, params;
 
   beforeEach(() => {
     path = 'path/to/resource';
     params = { param: 'test' };
-    headers = {
-      'Client-Id': 'cmr-stac-api-proxy'
-    };
   });
 
   describe('makeCmrSearchUrl', () => {
     it('should exist', () => {
-      expect(makeCmrSearchUrl).toBeDefined()
-    })
+      expect(makeCmrSearchUrl).toBeDefined();
+    });
     it('should create a url with zero params.', () => {
       expect(makeCmrSearchUrl()).toBe('https://cmr.earthdata.nasa.gov/search');
     });
@@ -30,26 +27,35 @@ describe('cmr', () => {
   });
 
   describe('cmrSearch', () => {
-    // beforeEach(() => {
-    //   axios.get = jest.fn()
-    //   const url = 'https://example.com'
-    // })
-    
-    // afterEach(() => {
-    //   jest.restoreAllMocks();
-    // });
+    beforeEach(() => {
+      axios.get = jest.fn();
+    });
 
-    const url = 'https://example.com'
-    console.log(cmrSearch(url, {params, headers}))
+    afterEach(() => {
+      jest.restoreAllMocks();
+    });
 
     it('should exist', () => {
-      expect(cmrSearch).toBeDefined()
-    })
+      expect(cmrSearch).toBeDefined();
+    });
 
-    // it('should return a url with one param', () => {
-    //   expect(cmrSearch(url)).toEqual({})
-    // })
-  })
+    it('should take in a url and a params object', async () => {
+      const error = new Error('Missing url or parameters');
+      expect.assertions(1);
+      try {
+        await cmrSearch();
+      } catch (e) {
+        expect(e).toEqual(error);
+      }
+    });
+
+    it('should return a cmr collection', async () => {
+      cmrSearch('https://example.com', { has_granules: true, downloadable: true });
+      expect(axios.get.mock.calls.length).toBe(1);
+      expect(axios.get.mock.calls[0][0]).toBe('https://example.com');
+      expect(axios.get.mock.calls[0][1]).toEqual({ headers: { 'Client-Id': 'cmr-stac-api-proxy' }, params: { has_granules: true, downloadable: true } });
+    });
+  });
 
   describe('findCollections', () => {
     beforeEach(() => {
@@ -109,10 +115,6 @@ describe('cmr', () => {
       expect(result).toEqual({ test: 'value' });
     });
   });
-
-  // run findCollections
-  // findCollections => ${url}/collections.json?has_granules=true&downloadable=true&concept_id=10
-  // getCollection => findCollections[0] || null
 
   describe('getCollections', () => {
     beforeEach(() => {

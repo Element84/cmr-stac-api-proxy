@@ -1,6 +1,6 @@
 const _ = require('lodash');
 const axios = require('axios');
-const { UrlBuilder } = require('../util/url-builder')
+const { UrlBuilder } = require('../util/url-builder');
 const { parseOrdinateString, identity } = require('../util');
 
 const STAC_SEARCH_PARAMS_CONVERSION_MAP = {
@@ -34,14 +34,15 @@ const makeCmrSearchUrl = (path, queryParams = null) => {
     .withHost('cmr.earthdata.nasa.gov/search')
     .withPath(path)
     .withQuery(queryParams)
-    .build()
-}
+    .build();
+};
 
 const headers = {
   'Client-Id': 'cmr-stac-api-proxy'
 };
 
 const cmrSearch = async (url, params) => {
+  if (!url || !params) throw new Error('Missing url or parameters');
   console.log(`CMR Search ${url} ${JSON.stringify(params)}`);
   return axios.get(url, { params, headers });
 };
@@ -55,7 +56,7 @@ const findCollections = async (params = {}) => {
 
 const getCollection = async (conceptId) => {
   const collections = await findCollections({ concept_id: conceptId });
-  if (collections.length > 0) return collections[0]
+  if (collections.length > 0) return collections[0];
   return null;
 };
 
