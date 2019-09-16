@@ -1,5 +1,5 @@
 const path = require('path');
-const { createSchemaValidator, loadOpenApiYaml, getSchema, validateSchema } = require('../../lib/validator');
+const { createSchemaValidator, loadOpenApiYaml, getSchema, getSchemaCollection, validateSchema } = require('../../lib/validator');
 
 describe('createSchemaValidator', () => {
   const testSchema = {
@@ -75,15 +75,77 @@ describe('loadOpenApiYaml', () => {
   });
 });
 
-describe('getSchema', () => {
+describe('getSchemaCollection', () => {
   const validSchema = {
     components: {
-      test: 'test'
+      schemas: {
+        testComponent: {
+          name: {
+            type: 'string'
+          },
+          age: {
+            type: 'number'
+          }
+        },
+        testComponent2: {
+          price: {
+            type: 'number'
+          }
+        }
+      }
     }
   };
 
   const invalidSchema = {
-    test: 'test'
+    test: 'test',
+    test2: 'test'
+  };
+
+  it('should exist', () => {
+    expect(getSchemaCollection).toBeDefined();
+  });
+
+  it('should require a schema object with a component collection as a parameter', () => {
+    expect(() => getSchemaCollection()).toThrow('Missing schema object');
+    expect(() => getSchemaCollection(invalidSchema)).toThrow('Missing component collection');
+  });
+
+  it('should return a component collection', () => {
+    expect(getSchemaCollection(validSchema)).toEqual({
+      testComponent: {
+        name: {
+          type: 'string'
+        },
+        age: {
+          type: 'number'
+        }
+      },
+      testComponent2: {
+        price: {
+          type: 'number'
+        }
+      }
+    });
+  });
+});
+
+describe('getSchema', () => {
+  const validTestComponent = 'testComponent';
+  const invalidTestComponent = 'testComponent3';
+  const testCollection = {
+    testComponent: {
+      name: {
+        type: 'string'
+      },
+      age: {
+        type: 'number'
+      }
+    },
+    testComponent2: {
+      price: {
+        type: 'number'
+      }
+    }
   };
 
   it('should exist', () => {
@@ -91,16 +153,25 @@ describe('getSchema', () => {
     expect(getSchema).toBeDefined();
   });
 
-  it('should require a schema component as a parameter', () => {
+  it('should require a component collection and schema component name as parameters', () => {
     expect(() => getSchema()).toThrow();
+    expect(() => getSchema(testCollection)).toThrow();
   });
 
-  it('should check to make sure there is a component schema(s) available', () => {
-    expect(() => getSchema(invalidSchema)).toThrow();
+  it('should require the component to be a key in the collection', () => {
+    expect(() => getSchema(testCollection, invalidTestComponent)).toThrow('Component not found in collection');
+    expect(() => getSchema(testCollection, validTestComponent)).not.toThrow();
   });
 
-  it('should grab a schema from a loaded file', () => {
-    expect(getSchema(validSchema)).toEqual({ test: 'test' });
+  it('should return the schema for the given component', () => {
+    expect(getSchema(testCollection, validTestComponent)).toEqual({
+      name: {
+        type: 'string'
+      },
+      age: {
+        type: 'number'
+      }
+    });
   });
 });
 

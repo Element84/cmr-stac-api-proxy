@@ -4,37 +4,47 @@ const path = require('path');
 const Ajv = require('ajv');
 const ajv = new Ajv({ allErrors: true });
 
-const loadOpenApiYaml = (swaggerYaml) => {
+function loadOpenApiYaml (swaggerYaml) {
   if (!swaggerYaml) throw new Error('Missing Yaml path');
-
-  let yamlSchemaFile;
-  path.isAbsolute(swaggerYaml) ? yamlSchemaFile = swaggerYaml : yamlSchemaFile = path.join(__dirname, swaggerYaml);
-
+  const yamlSchemaFile = path.isAbsolute(swaggerYaml) ? swaggerYaml : path.join(__dirname, swaggerYaml);
   return yaml.safeLoad(fs.readFileSync(yamlSchemaFile));
-};
+}
 
-const getSchema = (schemaName) => {
-  if (!schemaName) throw new Error('Missing schema name');
-  if (!schemaName.components) throw new Error('No schema found');
-  return schemaName.components;
-};
+// getSchemaCollection (yamlJson) : schemaCollection
+// getSchema (schemaCollection, schemaName) : schema
 
-const createSchemaValidator = (schema) => {
+function getSchemaCollection (schemaJson) {
+  if (!schemaJson) throw new Error('Missing schema object');
+  if (!schemaJson.components) throw new Error('Missing component collection');
+  if (!schemaJson.components.schemas) throw new Error('Missing collection schemas');
+  return schemaJson.components.schemas;
+}
+
+function getSchema (schemaCollection, schemaComponent) {
+  if (!schemaCollection) throw new Error('Missing schema collection parameter');
+  if (!schemaComponent) throw new Error('Missing schema component name');
+  if (!schemaCollection[schemaComponent]) throw new Error('Component not found in collection');
+  return schemaCollection[schemaComponent];
+}
+
+function createSchemaValidator (schema) {
   if (!schema) throw new Error('Missing a schema.');
   return ajv.compile(schema);
-};
+}
 
-const validateSchema = (componentName, dataObject, yamlSchemaFile = '../../docs/WFS3core+STAC.yaml') => {
+function validateSchema (componentName, dataObject, yamlSchemaFile = '../../docs/WFS3core+STAC.yaml') {
   if (!componentName || !dataObject) throw new Error('Missing parameters');
   const load = loadOpenApiYaml(yamlSchemaFile);
-  const schemaComponents = getSchema(load);
-  const validator = createSchemaValidator(schemaComponents.schemas[componentName]);
+  const schemaCollection = getSchemaCollection(load);
+  const componentSchema = getSchema(schemaCollection, componentName);
+  const validator = createSchemaValidator(componentSchema);
   return validator(dataObject);
-};
+}
 
 module.exports = {
-  createSchemaValidator,
-  getSchema,
   loadOpenApiYaml,
+  getSchema,
+  getSchemaCollection,
+  createSchemaValidator,
   validateSchema
 };
