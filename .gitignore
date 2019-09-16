@@ -127,6 +127,9 @@ $RECYCLE.BIN/
 # VS Code
 .vscode/
 
+# WebStorm
+.idea/
+
 # AWS SAM CLI
 .aws-sam/
 
