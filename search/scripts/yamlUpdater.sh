@@ -7,8 +7,8 @@
 # [] Log results of test
 # [] Email devs with results
 #    - email log of results, they need a link to update jargan
-# - Fix broken test
-# - Write test around new specs
+# [] Fix broken test
+# [] Write test around new specs
 
 curl -O https://raw.githubusercontent.com/radiantearth/stac-spec/blob/master/api-spec/openapi/STAC.yaml
 curl -O https://raw.githubusercontent.com/radiantearth/stac-spec/blob/master/api-spec/openapi/WFS3.yaml
@@ -20,6 +20,9 @@ yaml-files STAC.merge.yaml WFS3core+STAC.yaml
 
 rm STAC.yaml WFS3.yaml STAC.merge.yaml
 
-npm test
+# check if new WFS3core+STAC is equal to what we have.
+# Do nothing if they're the same, replace if different
+# Exit with non-zero if fail so that the whole build fails
+# Send errors to build log
 
-------------------------------------------
+npm test
