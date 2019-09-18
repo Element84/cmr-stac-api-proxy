@@ -1,49 +1,51 @@
-// const fs = require('fs');
+const fs = require('fs');
 const yaml = require('js-yaml');
 const axios = require('axios');
 
-// function to get the yaml files
+const STACYamlUrl = 'https://raw.githubusercontent.com/radiantearth/stac-spec/blob/master/api-spec/openapi/STAC.yaml';
+
+const WFS3YamlUrl = 'https://raw.githubusercontent.com/radiantearth/stac-spec/blob/master/api-spec/openapi/WFS3.yaml';
+
 async function retrieveYaml (yamlUrl) {
   if (!yamlUrl) throw new Error('Missing yaml url');
   const yamlData = await axios.get(yamlUrl);
   return yaml.safeLoad(yamlData.data);
 }
 
-// function to merge yaml objects
-// function to call first two, compare new and old, and write if old.
+function mergeObjects (firstObj, secondObj) {
+  if (!firstObj || !secondObj) throw new Error('Must have two objects as parameters');
+  return Object.assign({}, secondObj, firstObj);
+}
+// validate mergeYaml
 
-// const WFS3YamlUrl = 'https://raw.githubusercontent.com/radiantearth/stac-spec/blob/master/api-spec/openapi/STAC.yaml';
+// function to call first two
+async function loadAndMergeYamlFiles (firstUrl, secondUrl) {
+  if (!firstUrl || !secondUrl) throw new Error('Must pass two yaml urls');
+  const firstObject = await retrieveYaml(firstUrl);
+  const secondObject = await retrieveYaml(secondUrl);
+  const mergedObject = mergeObjects(firstObject, secondObject);
+  return yaml.safeDump(mergedObject);
+}
 
-// const STACYamlUrl = 'https://raw.githubusercontent.com/radiantearth/stac-spec/blob/master/api-spec/openapi/WFS3.yaml';
+// function to write object to yaml file.
+function writeToYaml (yamlString, pathString) {
+  if (!yamlString || !pathString) throw new Error('Must pass a yaml string and a path string');
+  fs.writeFileSync(pathString, yamlString);
+}
 
-// const newWFS3Yaml = axios.get(WFS3YamlUrl)
-//   .then(response => {
-//     return yaml.safeLoad(fs.readFileSync(response));
-//   })
-//   .catch((error) => {
-//     console.error(error);
-//   });
+// main function to call methods
+async function updateYaml (yamlUrl1, yamlUrl2, pathString) {
+  if (!yamlUrl1 || !yamlUrl2 || !pathString) throw new Error('Missing at least one parameter, check parameters and try again');
 
-// const newSTACYaml = axios.get(STACYamlUrl)
-//   .then(response => {
-//     return yaml.safeLoad(fs.readFileSync(response));
-//   })
-//   .catch((error) => {
-//     console.error(error);
-//   });
-
-// const mergedYaml = Object.assign({}, newWFS3Yaml, newSTACYaml);
-
-// const oldYaml = yaml.safeLoad(fs.readFileSync('../search/docs/WFS3core+STAC.yaml'));
-
-// if (JSON.stringify(mergedYaml) === JSON.stringify(oldYaml)) {
-
-// } else {
-//   fs.writeFileSync('../search/docs/newWFS3core+STAC.yaml', yaml.safeDump(mergedYaml), function (error) {
-//     return console.error(error);
-//   });
-// }
+  const yamlString = await loadAndMergeYamlFiles(yamlUrl1, yamlUrl2);
+  console.log('line 41: ', yamlString);
+  writeToYaml(yamlString, pathString);
+}
 
 module.exports = {
-  retrieveYaml
+  retrieveYaml,
+  mergeObjects,
+  loadAndMergeYamlFiles,
+  writeToYaml,
+  updateYaml
 };
