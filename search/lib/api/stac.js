@@ -22,7 +22,7 @@ async function postSearch (request, response) {
   response.status(200).json(result);
 }
 
-async function getRootCatalog (request, response) {
+function getRootCatalog (request, response) {
   const rootCatalog = createRootCatalog();
   rootCatalog.addChild('Default Catalog', '/default');
   response.status(200).json(rootCatalog);

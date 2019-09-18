@@ -11,7 +11,6 @@ const { errorHandler } = require('./error-handler');
 
 async function initialize () {
   logger.debug('Initialize Application');
-  logger.silly('This is ridiculous.');
 
   const application = express();
 
