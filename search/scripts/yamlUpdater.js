@@ -1,32 +1,14 @@
-const fs = require('fs');
+// const fs = require('fs');
 const yaml = require('js-yaml');
 const axios = require('axios');
 
 // function to get the yaml files
-// function retrieveYaml (yamlUrl) {
-//   if (!yamlUrl) throw new Error('Missing yaml url');
-
-//   axios({
-//     method: 'get',
-//     url: yamlUrl
-//   })
-//     .then(yamlData => {
-//       return JSON.parse(yamlData.data);
-//     });
-// }
-
-const retrieveYaml = async (yamlUrl) => {
+async function retrieveYaml (yamlUrl) {
   if (!yamlUrl) throw new Error('Missing yaml url');
-  try {
-    const data = await axios.request({
-      method: 'get',
-      url: yamlUrl
-    })
-    return data
-  } catch (e) {
-    console.error('Could not grab yaml', e.message)
-  }
+  const yamlData = await axios.get(yamlUrl);
+  return yaml.safeLoad(yamlData.data);
 }
+
 // function to merge yaml objects
 // function to call first two, compare new and old, and write if old.
 
