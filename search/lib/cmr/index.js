@@ -47,12 +47,12 @@ const cmrSearch = async (url, params) => {
   return axios.get(url, { params, headers });
 };
 
-const findCollections = async (params = {}) => {
+async function findCollections (params = {}) {
   params.has_granules = true;
   params.downloadable = true;
   const response = await cmrSearch(makeCmrSearchUrl('/collections.json'), params);
   return response.data.feed.entry;
-};
+}
 
 const getCollection = async (conceptId) => {
   const collections = await findCollections({ concept_id: conceptId });

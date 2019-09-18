@@ -2,10 +2,17 @@ const express = require('express');
 const awsServerless = require('aws-serverless-express');
 const awsServerlessMiddleware = require('aws-serverless-express/middleware');
 
+const settings = require('./settings');
+const { createLogger } = require('./util');
+const logger = createLogger(settings.logger);
+
 const api = require('./api');
 const { errorHandler } = require('./error-handler');
 
 async function initialize () {
+  logger.debug('Initialize Application');
+  logger.silly('This is ridiculous.');
+
   const application = express();
 
   application.use(awsServerlessMiddleware.eventContext());

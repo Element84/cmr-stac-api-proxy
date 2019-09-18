@@ -70,7 +70,7 @@ describe('loadOpenApiYaml', () => {
     expect(loadOpenApiYaml('../../tests/validator/test.yaml')).toEqual({ test: 'test' });
   });
 
-  it.skip('should be able to accept an absolute path', () => {
+  it('should be able to accept an absolute path', () => {
     expect(loadOpenApiYaml(path.join(__dirname, '../../tests/validator/test.yaml'))).toEqual({ test: 'test' });
   });
 });

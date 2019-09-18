@@ -191,7 +191,7 @@ describe('collections', () => {
             type: 'application/json'
           }
         ],
-        name: 'id',
+        id: 'id',
         title: 'datasetId' });
     });
   });
