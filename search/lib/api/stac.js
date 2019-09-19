@@ -39,7 +39,6 @@ function createDefaultCatalog () {
 }
 
 async function getCatalog (request, response) {
-  // FIXME: const catalogId = request.params.catalogId;
   const cmrCollections = await cmr.findCollections();
   const catalog = createDefaultCatalog();
 
