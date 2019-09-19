@@ -18,6 +18,8 @@ async function initialize () {
   application.use(api.routes);
   application.use(errorHandler);
 
+  application.logger = logger;
+
   return application;
 }
 

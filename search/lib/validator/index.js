@@ -10,9 +10,6 @@ function loadOpenApiYaml (swaggerYaml) {
   return yaml.safeLoad(fs.readFileSync(yamlSchemaFile));
 }
 
-// getSchemaCollection (yamlJson) : schemaCollection
-// getSchema (schemaCollection, schemaName) : schema
-
 function getSchemaCollection (schemaJson) {
   if (!schemaJson) throw new Error('Missing schema object');
   if (!schemaJson.components) throw new Error('Missing component collection');

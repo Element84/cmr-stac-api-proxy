@@ -2,11 +2,11 @@ const cmr = require('../../lib/cmr');
 const cmrConverter = require('../../lib/convert');
 const { getSearch, postSearch, getRootCatalog, getCatalog } = require('../../lib/api/stac');
 
-const { mockFunction, revertFunction } = require('../util');
+const { mockFunction, revertFunction, logger } = require('../util');
 
 describe('getSearch', () => {
   it('should return a set of collections that match a simple query', async () => {
-    const request = { apiGateway: { event: {} } };
+    const request = { apiGateway: { event: {} }, app: { logger: logger } };
     const response = {
       status: jest.fn().mockReturnThis(),
       json: jest.fn()
@@ -33,7 +33,7 @@ describe('getSearch', () => {
 
 describe('postSearch', () => {
   it('should return a set of collections that match a simple query', async () => {
-    const request = { apiGateway: { event: {} }, body: '{}' };
+    const request = { apiGateway: { event: {} }, body: '{}', app: { logger: logger } };
     const response = {
       status: jest.fn().mockReturnThis(),
       json: jest.fn()
@@ -60,6 +60,7 @@ describe('postSearch', () => {
 
 describe('getRootCatalog', () => {
   it('should respond with a rootCatalog.', () => {
+    const mockRequest = { app: { logger: logger } };
     const mockResponse = {
       status: jest.fn().mockReturnThis(),
       json: jest.fn()
@@ -91,7 +92,7 @@ describe('getRootCatalog', () => {
       ]
     };
 
-    getRootCatalog(null, mockResponse);
+    getRootCatalog(mockRequest, mockResponse);
     expect(mockResponse.json).toHaveBeenCalledWith(expected);
   });
 });
