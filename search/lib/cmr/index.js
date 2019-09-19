@@ -23,11 +23,6 @@ const WFS_PARAMS_CONVERSION_MAP = {
   limit: ['page_size', _.identity]
 };
 
-// TODO items from previous clojure impl to incorporate
-// sorting by granule ur
-// https://github.com/Element84/catalog-api-spec/blob/dev/implementations/e84/src/e84_api_impl/search_service.clj
-// has mappings from JSON response to GeoJSON features
-
 const makeCmrSearchUrl = (path, queryParams = null) => {
   return UrlBuilder.create()
     .withProtocol('https')

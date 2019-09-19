@@ -8,8 +8,6 @@ const { WHOLE_WORLD_BBOX } = require('../../lib/convert');
 
 describe('collections', () => {
   describe('cmrCollSpatialToExtents', () => {
-    // four scenarios need to be tested. The cmrColl object having either polygons,
-    // points, lines, boxes, or nothing.
     let cmrCollection;
 
     it('should return a bounding box from given polygon', () => {

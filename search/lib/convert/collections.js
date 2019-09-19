@@ -5,28 +5,19 @@ const { WHOLE_WORLD_BBOX, pointStringToPoints, parseOrdinateString, addPointsToB
 function cmrCollSpatialToExtents (cmrColl) {
   let bbox = null;
   if (cmrColl.polygons) {
-    // an array of arrays of strings containing rings
-    // [["lat1 lon1 lat2 lon2 ..."]]
-    // In the inner most array all you need is the first string. That's the outer boundary
     bbox = cmrColl.polygons
       .map((rings) => rings[0])
       .map(pointStringToPoints)
       .reduce(addPointsToBbox, bbox);
   }
   if (cmrColl.points) {
-    // an array of strings of "lat lon"
-    // [ "53.63 -106.2", "33 -145"]
     const points = cmrColl.points.map(parseOrdinateString);
     bbox = addPointsToBbox(bbox, points);
   }
   if (cmrColl.lines) {
-    throw new Error(`Unepxected spatial extent of lines in ${cmrColl.id}`);
+    throw new Error(`Unexpected spatial extent of lines in ${cmrColl.id}`);
   }
   if (cmrColl.boxes) {
-    // a list of strings of west north east south
-    // TODO can cross antimeridian
-    // [ "-14.3601 -176.6525 64.823 151.78372" ]
-
     bbox = cmrColl.boxes.reduce((box, boxStr) => mergeBoxes(box, parseOrdinateString(boxStr)), bbox);
   }
   if (bbox === null) {
@@ -39,7 +30,6 @@ function cmrCollSpatialToExtents (cmrColl) {
 function stacSearchWithCurrentParams (event, collId) {
   const newParams = { ...event.queryStringParameters } || {};
   newParams.collectionId = collId;
-  // The provider param isn't needed once the colleciton id is set.
   delete newParams.provider;
   return generateAppUrl(event, 'search/stac', newParams);
 }
@@ -47,7 +37,6 @@ function stacSearchWithCurrentParams (event, collId) {
 function cmrGranuleSearchWithCurrentParams (event, collId) {
   const newParams = { ...event.queryStringParameters } || {};
   newParams.collection_concept_id = collId;
-  // The provider param isn't needed once the colleciton id is set.
   delete newParams.collectionId;
   delete newParams.provider;
   return cmr.makeCmrSearchUrl('granules.json', newParams);
