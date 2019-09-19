@@ -38,7 +38,6 @@ async function updateYaml (yamlUrl1, yamlUrl2, pathString) {
   if (!yamlUrl1 || !yamlUrl2 || !pathString) throw new Error('Missing at least one parameter, check parameters and try again');
 
   const yamlString = await loadAndMergeYamlFiles(yamlUrl1, yamlUrl2);
-  console.log('line 41: ', yamlString);
   writeToYaml(yamlString, pathString);
 }
 

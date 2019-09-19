@@ -82,7 +82,7 @@ describe('yamlUpdater', () => {
     });
 
     it('should create a new yaml file', async () => {
-      await updateYaml(WFS3YamlUrl, STACYamlUrl, './docs/WFS3core+STAC.yaml');
+      await updateYaml(STACYamlUrl, WFS3YamlUrl, './docs/WFS3core+STAC.yaml');
     });
   });
 });
