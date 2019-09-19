@@ -33,7 +33,7 @@ describe('getSearch', () => {
 
 describe('postSearch', () => {
   it('should return a set of collections that match a simple query', async () => {
-    const request = { apiGateway: { event: {} }, body: '{}'  };
+    const request = { apiGateway: { event: {} }, body: '{}' };
     const response = {
       status: jest.fn().mockReturnThis(),
       json: jest.fn()
