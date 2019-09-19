@@ -20,7 +20,7 @@ async function getSearch (request, response) {
 
 async function postSearch (request, response) {
   const event = request.apiGateway.event;
-  const result = await search(event, JSON.parse(request.body));
+  const result = await search(event, request.body);
   response.status(200).json(result);
 }
 

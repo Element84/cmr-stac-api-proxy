@@ -87,19 +87,19 @@ describe('collections', () => {
     };
 
     it('should return a search url with current params', () => {
-      expect(stacSearchWithCurrentParams(event, collID)).toEqual('http://example.com/search/stac?eo_cloud_cover=2&collectionId=landsat-8-l1');
+      expect(stacSearchWithCurrentParams(event, collID)).toEqual('http://example.com/stac/search?eo_cloud_cover=2&collectionId=landsat-8-l1');
     });
 
     it('should return a search url with no params', () => {
-      expect(stacSearchWithCurrentParams(otherEvent, collID)).toEqual('http://example.com/search/stac?collectionId=landsat-8-l1');
+      expect(stacSearchWithCurrentParams(otherEvent, collID)).toEqual('http://example.com/stac/search?collectionId=landsat-8-l1');
     });
 
     it('should return a search url with a stage and params', () => {
-      expect(stacSearchWithCurrentParams(awsEvent, collID)).toEqual('http://amazonaws.com/early/search/stac?eo_cloud_cover=2&collectionId=landsat-8-l1');
+      expect(stacSearchWithCurrentParams(awsEvent, collID)).toEqual('http://amazonaws.com/early/stac/search?eo_cloud_cover=2&collectionId=landsat-8-l1');
     });
 
     it('should return a search url with a stage and no params', () => {
-      expect(stacSearchWithCurrentParams(anotherAwsEvent, collID)).toEqual('http://amazonaws.com/early/search/stac?collectionId=landsat-8-l1');
+      expect(stacSearchWithCurrentParams(anotherAwsEvent, collID)).toEqual('http://amazonaws.com/early/stac/search?collectionId=landsat-8-l1');
     });
   });
 
@@ -158,7 +158,7 @@ describe('collections', () => {
             title: 'Info about this collection',
             type: 'application/json'
           }, {
-            href: 'http://example.com/search/stac?collectionId=id',
+            href: 'http://example.com/stac/search?collectionId=id',
             rel: 'stac',
             title: 'STAC Search this collection',
             type: 'application/json'
