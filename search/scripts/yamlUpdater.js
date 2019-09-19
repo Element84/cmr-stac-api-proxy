@@ -2,7 +2,7 @@ const fs = require('fs');
 const yaml = require('js-yaml');
 const axios = require('axios');
 
-const STACYamlUrl = 'https://raw.githubusercontent.com/radiantearth/stac-spec/blob/master/api-spec/openapi/STAC.yaml';
+const STACYamlUrl = 'https://raw.githubusercontent.com/radiantearth/stac-spec/blob/master/api-spec/STAC.yaml';
 
 const WFS3YamlUrl = 'https://raw.githubusercontent.com/radiantearth/stac-spec/blob/master/api-spec/openapi/WFS3.yaml';
 
