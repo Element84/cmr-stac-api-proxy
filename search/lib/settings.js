@@ -4,7 +4,7 @@ function getLoggerSettings () {
   const loggerSettings = {};
 
   loggerSettings.logLevel = process.env.LOG_LEVEL || 'error';
-  loggerSettings.quiet = process.env.LOG_DISABLED || true;
+  loggerSettings.quiet = Boolean(process.env.LOG_DISABLED) || true;
 
   return loggerSettings;
 }
