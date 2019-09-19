@@ -1,11 +1,8 @@
 const fs = require('fs');
 const yaml = require('js-yaml');
-const { retrieveYaml, mergeObjects, loadAndMergeYamlFiles, writeToYaml, updateYaml } = require('../../scripts/yamlUpdater.js');
+const { STACYamlUrl, WFS3YamlUrl, retrieveYaml, mergeObjects, loadAndMergeYamlFiles, writeToYaml, updateYaml } = require('../../scripts/yamlUpdater.js');
 
 describe('yamlUpdater', () => {
-  const WFS3YamlUrl = 'https://raw.githubusercontent.com/radiantearth/stac-spec/master/api-spec/openapi/WFS3.yaml';
-  const STACYamlUrl = 'https://raw.githubusercontent.com/radiantearth/stac-spec/master/api-spec/STAC.yaml';
-
   describe('retrieveYaml', () => {
     it('should throw if missing url.', () => {
       expect(retrieveYaml()).rejects.toThrow();
