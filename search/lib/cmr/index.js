@@ -41,11 +41,10 @@ const headers = {
   'Client-Id': 'cmr-stac-api-proxy'
 };
 
-const cmrSearch = async (url, params) => {
+async function cmrSearch (url, params) {
   if (!url || !params) throw new Error('Missing url or parameters');
-  console.log(`CMR Search ${url} ${JSON.stringify(params)}`);
   return axios.get(url, { params, headers });
-};
+}
 
 async function findCollections (params = {}) {
   params.has_granules = true;
@@ -54,16 +53,16 @@ async function findCollections (params = {}) {
   return response.data.feed.entry;
 }
 
-const getCollection = async (conceptId) => {
+async function getCollection (conceptId) {
   const collections = await findCollections({ concept_id: conceptId });
   if (collections.length > 0) return collections[0];
   return null;
-};
+}
 
-const findGranules = async (params = {}) => {
+async function findGranules (params = {}) {
   const response = await cmrSearch(makeCmrSearchUrl('/granules.json'), params);
   return response.data.feed.entry;
-};
+}
 
 /**
  * Patch for Object.fromEntries which is introduced in NodeJS 12.

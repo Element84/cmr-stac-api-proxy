@@ -1,5 +1,11 @@
 const path = require('path');
-const { createSchemaValidator, loadOpenApiYaml, getSchema, getSchemaCollection, validateSchema } = require('../../lib/validator');
+const {
+  createSchemaValidator,
+  loadOpenApiYaml,
+  getSchema,
+  getSchemaCollection,
+  validateSchema
+} = require('../../lib/validator');
 
 describe('createSchemaValidator', () => {
   const testSchema = {
@@ -149,7 +155,6 @@ describe('getSchema', () => {
   };
 
   it('should exist', () => {
-    // console.log(getSchema)
     expect(getSchema).toBeDefined();
   });
 
