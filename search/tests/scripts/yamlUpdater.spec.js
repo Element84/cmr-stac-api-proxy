@@ -4,7 +4,7 @@ const { retrieveYaml, mergeObjects, loadAndMergeYamlFiles, writeToYaml, updateYa
 
 describe('yamlUpdater', () => {
   const WFS3YamlUrl = 'https://raw.githubusercontent.com/radiantearth/stac-spec/master/api-spec/openapi/WFS3.yaml';
-  const STACYamlUrl = 'https://raw.githubusercontent.com/radiantearth/stac-spec/master/api-spec/openapi/STAC.yaml';
+  const STACYamlUrl = 'https://raw.githubusercontent.com/radiantearth/stac-spec/master/api-spec/STAC.yaml';
 
   describe('retrieveYaml', () => {
     it('should throw if missing url.', () => {

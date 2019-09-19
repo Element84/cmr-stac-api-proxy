@@ -176,9 +176,7 @@ describe('getSchema', () => {
 });
 
 describe('validateSchema', () => {
-  const testObj = {
-    type: 'Point'
-  };
+  const testBbox = [-110, 39.5, -105, 40.5];
 
   it('should exist', () => {
     expect(validateSchema).toBeDefined();
@@ -189,10 +187,10 @@ describe('validateSchema', () => {
   });
 
   it('should take in a WFS3/STAC component name and a collection object and return a boolean', () => {
-    expect(typeof validateSchema('geometryGeoJSON', testObj)).toEqual('boolean');
+    expect(typeof validateSchema('bbox', testBbox)).toEqual('boolean');
   });
 
   it('should validate the test object against the schema for the given component', () => {
-    expect(validateSchema('geometryGeoJSON', testObj)).toEqual(true);
+    expect(validateSchema('bbox', testBbox)).toEqual(true);
   });
 });
