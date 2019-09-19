@@ -67,6 +67,7 @@ describe('getRootCatalog', () => {
     };
 
     const expected = {
+      stac_version: '0.8.0',
       title: 'Root Catalog',
       description: 'Generated root catalog for CMR.',
       id: 'root',
@@ -114,6 +115,7 @@ describe('getCatalog', () => {
     cmr.findCollections = jest.fn().mockReturnValue(Promise.resolve(mockCmrCollection));
 
     const expected = {
+      stac_version: '0.8.0',
       id: 'default',
       title: 'Default Catalog',
       description: 'Default catalog for a no parameter search against common metadata repository.',

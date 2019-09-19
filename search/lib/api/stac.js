@@ -1,4 +1,6 @@
 const express = require('express');
+
+const settings = require('../settings');
 const cmr = require('../cmr');
 const cmrConverter = require('../convert');
 const { createRootCatalog, Catalog } = require('../stac').catalog;
@@ -30,11 +32,12 @@ function getRootCatalog (request, response) {
 
 function createDefaultCatalog () {
   const catalog = new Catalog();
+  catalog.stac_version = settings.stac.version;
   catalog.id = 'default';
   catalog.title = 'Default Catalog';
   catalog.description = 'Default catalog for a no parameter search against common metadata repository.';
-  catalog.createRoot('http://localhost:3000/stac');
-  catalog.createSelf('http://localhost:3000/stac/default');
+  catalog.createRoot(`${settings.stac.baseUrl}`);
+  catalog.createSelf(`${settings.stac.baseUrl}/default`);
   return catalog;
 }
 

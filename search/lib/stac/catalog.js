@@ -27,6 +27,7 @@ class Catalog {
 function createRootCatalog () {
   const rootCatalog = new Catalog();
 
+  rootCatalog.stac_version = settings.stac.version;
   rootCatalog.id = 'root';
   rootCatalog.title = 'Root Catalog';
   rootCatalog.description = 'Generated root catalog for CMR.';

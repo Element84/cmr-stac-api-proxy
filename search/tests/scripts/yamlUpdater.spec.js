@@ -1,6 +1,14 @@
 const fs = require('fs');
 const yaml = require('js-yaml');
-const { STACYamlUrl, WFS3YamlUrl, retrieveYaml, mergeObjects, loadAndMergeYamlFiles, writeToYaml, updateYaml } = require('../../scripts/yamlUpdater.js');
+const {
+  STACYamlUrl,
+  WFS3YamlUrl,
+  retrieveYaml,
+  mergeObjects,
+  loadAndMergeYamlFiles,
+  writeToYaml,
+  updateYaml
+} = require('../../scripts/yamlUpdater.js');
 
 describe('yamlUpdater', () => {
   describe('retrieveYaml', () => {

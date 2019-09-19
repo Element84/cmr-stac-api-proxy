@@ -1,3 +1,4 @@
+const settings = require('../../lib/settings');
 const { createRootCatalog } = require('../../lib/stac/catalog');
 
 describe('createRootCatalog', () => {
@@ -25,6 +26,10 @@ describe('createRootCatalog', () => {
     const rootLink = rootCatalog.links.find((link) => link.rel === 'root');
     expect(rootLink).toBeDefined();
     expect(rootLink.href).toEqual(selfLink.href);
+  });
+
+  it('should have a stac version.', () => {
+    expect(rootCatalog.stac_version).toBe(settings.stac.version);
   });
 
   it('should have an id.', () => {

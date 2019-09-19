@@ -2,8 +2,8 @@ const fs = require('fs');
 const yaml = require('js-yaml');
 const axios = require('axios');
 
-const STACYamlUrl = 'https://raw.githubusercontent.com/radiantearth/stac-spec/blob/master/api-spec/STAC.yaml';
-const WFS3YamlUrl = 'https://raw.githubusercontent.com/radiantearth/stac-spec/blob/master/api-spec/openapi/WFS3.yaml';
+const STACYamlUrl = 'https://raw.githubusercontent.com/radiantearth/stac-spec/master/api-spec/STAC.yaml';
+const WFS3YamlUrl = 'https://raw.githubusercontent.com/radiantearth/stac-spec/master/api-spec/openapi/WFS3.yaml';
 
 async function retrieveYaml (yamlUrl) {
   if (!yamlUrl) throw new Error('Missing yaml url');
