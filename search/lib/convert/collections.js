@@ -31,7 +31,7 @@ function stacSearchWithCurrentParams (event, collId) {
   const newParams = { ...event.queryStringParameters } || {};
   newParams.collectionId = collId;
   delete newParams.provider;
-  return generateAppUrl(event, 'search/stac', newParams);
+  return generateAppUrl(event, 'stac/search', newParams);
 }
 
 function cmrGranuleSearchWithCurrentParams (event, collId) {
