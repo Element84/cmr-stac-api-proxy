@@ -1,7 +1,7 @@
 const { get } = require('lodash');
 
 function errorHandler (error, req, res, next) {
-  console.log(error);
+  req.app.logger.error(error.message);
   if (get(error, 'response.data.errors')) {
     res.status(400).json(error.response.data.errors);
   } else {
