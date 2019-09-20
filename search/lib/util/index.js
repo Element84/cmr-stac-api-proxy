@@ -28,7 +28,7 @@ function createSecureUrl (host, path, queryParams) {
 function generateAppUrl (event, path, queryParams = null) {
   const host = event.headers.Host;
   const protocol = event.headers['X-Forwarded-Proto'] || 'http';
-  const newPath = `${settings.stageUrl}/${path}`;
+  const newPath = settings.stageUrl ? `${settings.stageUrl}/${path}` : path;
   const url = protocol === 'https' ? createSecureUrl(host, newPath, queryParams) : createUrl(host, newPath, queryParams);
 
   logger.debug(`Generated URL: ${url}`);

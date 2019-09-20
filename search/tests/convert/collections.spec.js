@@ -1,3 +1,4 @@
+const settings = require('../../lib/settings');
 const {
   cmrCollSpatialToExtents,
   stacSearchWithCurrentParams,
@@ -95,11 +96,15 @@ describe('collections', () => {
     });
 
     it('should return a search url with a stage and params', () => {
+      settings.stageUrl = 'early';
       expect(stacSearchWithCurrentParams(awsEvent, collID)).toEqual('http://amazonaws.com/early/stac/search?eo_cloud_cover=2&collectionId=landsat-8-l1');
+      settings.stageUrl = '';
     });
 
     it('should return a search url with a stage and no params', () => {
+      settings.stageUrl = 'early';
       expect(stacSearchWithCurrentParams(anotherAwsEvent, collID)).toEqual('http://amazonaws.com/early/stac/search?collectionId=landsat-8-l1');
+      settings.stageUrl = '';
     });
   });
 
