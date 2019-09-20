@@ -21,6 +21,7 @@ functions:
       LOG_DISABLED: false
       STAC_BASE_URL: http://localhost:3000
       STAC_VERSION: 0.8.0
+      STAGE: ${self:provider.stage}
 
 plugins:
   - serverless-offline
