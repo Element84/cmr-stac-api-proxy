@@ -1,7 +1,7 @@
 const _ = require('lodash');
 const axios = require('axios');
 const { UrlBuilder } = require('../util/url-builder');
-const { parseOrdinateString, identity } = require('../util');
+const { parseOrdinateString, identity, logger } = require('../util');
 
 const STAC_SEARCH_PARAMS_CONVERSION_MAP = {
   bbox: ['bounding_box', (v) => v.join(',')],
@@ -38,6 +38,7 @@ const headers = {
 
 async function cmrSearch (url, params) {
   if (!url || !params) throw new Error('Missing url or parameters');
+  logger.debug(`CMR Search: ${url} with params: ${params}`);
   return axios.get(url, { params, headers });
 }
 
@@ -82,9 +83,14 @@ function convertParam (converterPair, key, value) {
 }
 
 function convertParams (conversionMap, params) {
-  const converted = Object.entries(params)
-    .map(([k, v]) => convertParam(conversionMap[k], k, v));
-  return fromEntries(converted);
+  try {
+    const converted = Object.entries(params)
+      .map(([k, v]) => convertParam(conversionMap[k], k, v));
+    return fromEntries(converted);
+  } catch (error) {
+    logger.error(error.message);
+    return params;
+  }
 }
 
 module.exports = {

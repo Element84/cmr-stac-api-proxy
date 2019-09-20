@@ -1,9 +1,10 @@
 const express = require('express');
-const { wfs, generateAppUrl } = require('../util');
+const { wfs, generateAppUrl, logger } = require('../util');
 const cmr = require('../cmr');
 const convert = require('../convert');
 
 async function getCollections (request, response) {
+  logger.info('GET /collections');
   const event = request.apiGateway.event;
   const params = cmr.convertParams(cmr.WFS_PARAMS_CONVERSION_MAP, request.query);
   const collections = await cmr.findCollections(params);
@@ -17,6 +18,7 @@ async function getCollections (request, response) {
 }
 
 async function getCollection (request, response) {
+  logger.info(`GET /collections/${request.params.collectionId}`);
   const event = request.apiGateway.event;
   const conceptId = request.params.collectionId;
   const collection = await cmr.getCollection(conceptId);
@@ -25,6 +27,7 @@ async function getCollection (request, response) {
 }
 
 async function getGranules (request, response) {
+  logger.info(`GET /collections/${request.params.collectionId}/items`);
   const event = request.apiGateway.event;
   const conceptId = request.params.collectionId;
   const params = Object.assign({ collection_concept_id: conceptId }, cmr.convertParams(cmr.WFS_PARAMS_CONVERSION_MAP, request.query));
@@ -36,6 +39,7 @@ async function getGranules (request, response) {
 }
 
 async function getGranule (request, response) {
+  logger.info(`GET /collections/${request.params.collectionId}/items/${request.params.itemId}`);
   const event = request.apiGateway.event;
   const collConceptId = request.params.collectionId;
   const conceptId = request.params.itemId;

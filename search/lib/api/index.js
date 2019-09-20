@@ -1,12 +1,13 @@
 const path = require('path');
 const express = require('express');
 
-const { WfsLink, generateAppUrl } = require('../util');
+const { WfsLink, generateAppUrl, logger } = require('../util');
 
 const stac = require('./stac');
 const wfs = require('./wfs');
 
 function createRootResponse (event) {
+  logger.info('GET / - capabilities response');
   return {
     links: [
       WfsLink.create('self', generateAppUrl(event, ''), 'this document'),

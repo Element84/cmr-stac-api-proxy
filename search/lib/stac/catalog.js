@@ -1,4 +1,7 @@
+const { inspect } = require('util');
+
 const settings = require('../settings');
+const { logger } = require('../util');
 const link = require('./link');
 
 class Catalog {
@@ -34,6 +37,8 @@ function createRootCatalog () {
 
   rootCatalog.createRoot(settings.stac.baseUrl);
   rootCatalog.createSelf(settings.stac.baseUrl);
+
+  logger.debug(inspect(rootCatalog));
 
   return rootCatalog;
 }

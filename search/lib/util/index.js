@@ -1,7 +1,11 @@
+const settings = require('../settings');
+
 const app = require('./app');
 const { UrlBuilder } = require('./url-builder');
 const { WfsLink } = require('./wfs-link');
 const { createLogger } = require('./logger');
+
+const logger = createLogger(settings.logger);
 
 function createUrl (host, path, queryParams) {
   return UrlBuilder.create()
@@ -25,7 +29,11 @@ function generateAppUrl (event, path, queryParams = null) {
   const host = event.headers.Host;
   const protocol = event.headers['X-Forwarded-Proto'] || 'http';
   const newPath = host.includes('amazonaws.com') ? `${event.requestContext.stage}/${path}` : path;
-  return protocol === 'https' ? createSecureUrl(host, newPath, queryParams) : createUrl(host, newPath, queryParams);
+  const url = protocol === 'https' ? createSecureUrl(host, newPath, queryParams) : createUrl(host, newPath, queryParams);
+
+  logger.debug(`Generated URL: ${url}`);
+
+  return url;
 }
 
 function generateSelfUrl (event) {
@@ -44,5 +52,6 @@ module.exports = {
   generateSelfUrl,
   identity,
   WfsLink,
-  createLogger
+  createLogger,
+  logger
 };

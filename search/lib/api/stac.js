@@ -5,6 +5,8 @@ const cmr = require('../cmr');
 const cmrConverter = require('../convert');
 const { createRootCatalog, Catalog } = require('../stac').catalog;
 
+const { logger } = require('../util');
+
 async function search (event, params) {
   const cmrParams = cmr.convertParams(cmr.STAC_SEARCH_PARAMS_CONVERSION_MAP, params);
   const granules = await cmr.findGranules(cmrParams);
@@ -12,6 +14,7 @@ async function search (event, params) {
 }
 
 async function getSearch (request, response) {
+  logger.info('GET /stac/search');
   const event = request.apiGateway.event;
   const params = cmr.convertParams(cmr.STAC_QUERY_PARAMS_CONVERSION_MAP, request.query);
   const result = await search(event, params);
@@ -19,18 +22,21 @@ async function getSearch (request, response) {
 }
 
 async function postSearch (request, response) {
+  logger.info('POST /stac/search');
   const event = request.apiGateway.event;
   const result = await search(event, request.body);
   response.status(200).json(result);
 }
 
 function getRootCatalog (request, response) {
+  logger.info('GET /stac - root catalog');
   const rootCatalog = createRootCatalog();
   rootCatalog.addChild('Default Catalog', '/default');
   response.status(200).json(rootCatalog);
 }
 
 function createDefaultCatalog () {
+  logger.info('Creating the default catalog');
   const catalog = new Catalog();
   catalog.stac_version = settings.stac.version;
   catalog.id = 'default';
