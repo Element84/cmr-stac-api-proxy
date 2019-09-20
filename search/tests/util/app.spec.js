@@ -55,4 +55,9 @@ describe('generateAppUrl', () => {
     event.requestContext = { stage: 'dev' };
     expect(generateAppUrl(event, path, params)).toBe('http://amazonaws.com/dev/path/to/resource?param=test');
   });
+
+  it('should create a secure url if event has secure protocol.', () => {
+    event.headers['X-Forwarded-Proto'] = 'https';
+    expect(generateAppUrl(event, path)).toBe('https://example.com/path/to/resource');
+  });
 });
