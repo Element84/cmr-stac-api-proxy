@@ -1,9 +1,6 @@
 serverless-output.yml
 config.sh
 
-
-# Created by https://www.gitignore.io/api/osx,node,linux,windows
-
 ### Linux ###
 *~
 
@@ -79,7 +76,6 @@ typings/
 # dotenv environment variables file
 .env
 
-
 ### OSX ###
 *.DS_Store
 .AppleDouble
@@ -128,5 +124,17 @@ $RECYCLE.BIN/
 # Windows shortcuts
 *.lnk
 
+# VS Code
+.vscode/
 
-# End of https://www.gitignore.io/api/osx,node,linux,windows
+# WebStorm
+.idea/
+
+# AWS SAM CLI
+.aws-sam/
+
+# Serverless
+.serverless/
+
+# IntelliJ
+.idea/

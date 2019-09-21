@@ -4,31 +4,34 @@ An implementation of the [SpatioTemporal Asset Catalog API](https://github.com/r
 
 Deployed at [https://cmr-stac-api.dev.element84.com/](https://cmr-stac-api.dev.element84.com/)
 
-## Development
+There is more detailed documentation in the [docs](docs/readme.md) folder of this repository.
+
+## Development Quick Start
 
 ### Prerequisites
 
 * node.js 8.10 (nvm is the best way)
-* Docker
 * AWS CLI
-* [SAM CLI](https://github.com/awslabs/aws-sam-cli)
 
 ### Setup
 
-Run `bin/bootstrap.sh`
+This application is a monorepo around a set of microservices that support the STAC proxy. It is organized as a NPM module and will install all dependencies if you run the following command:
+
+`npm install`
 
 ### Running locally
 
-Run `bin/run_local.sh` and then visit http://localhost:3000
+- cd `search`
+- `npm start`
 
 ### Deploying
 
-1. Copy `example_config.sh` to `config.sh` and fill out the values.
-2. Run `bin/deploy.sh`
+- cd `search`
+- `npm run deploy`
 
 ## License
 
-Copyright 2018 Element 84
+Copyright 2018 - 2019 Element 84
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
