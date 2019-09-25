@@ -19,33 +19,35 @@ This application is written in JavaScript running on NodeJS as AWS Lambda functi
 </ul>
 
 ## Docs
-`docs` is where the combined specification document made from the STAC and WFS3 specification documents is held. Paths and component schemas are defined here. Also in `docs` is the generated documentation file. 
+`docs` is where the combined specification document made from the STAC and WFS3 specification documents is held. Paths and component schemas are defined here. The generated STAC documentation file is also located in this directory.
 
 ## Lib
-The `lib` directory contains the main logic of the application. It is broken down into modules pertaining to areas of responsibility.
+The `lib` directory contains the main logic of the application. It is broken down into modules pertaining to areas of responsibility. A summary of those modules can be found below.
 
-#### API
+### API
 The `api` directory houses the api routing logic for the application. This is achieved using `Express.js`. Also included in this directory are routes pertaining to STAC and WFS3 endpoints.
 
-#### CMR
+### CMR
 Contains logic to query CMR, including searching for collections and granules, getting collections and granules, and building CMR search URLs.
 
-#### Convert
+### Convert
 Inside `convert` is where the functions exist that are used to convert CMR data fields into their corresponding STAC/WFS3 fields. For instance, `bounding-box.js` contains function to translate a bounding box from CMR's format to STAC's format. 
 
-#### STAC
+### STAC
 Contains utility functions used in creating the STAC API endpoints. This includes logic to dynamically create or display catalogs during a search. `stac` also holds functionality to create links to root, parent, and child nodes.
 
-#### Util
+### Util
 `util` houses utility functions used throughout the application. This directory includes the models for WFS-Links and the URL-builder used throughout the application. The logger creation, for which we are using `Winston` is also found here.
 
-#### Validator
+### Validator
 The `validator` directory holds logic to retrieve component schemas from the STAC and WFS3 specification document, and validate component objects against them.
 
 ## Scripts
-The `scripts` directory contains only one file: `yamlUpdater.js`. This script is ran automatically during the build process, and is intended to update the STAC and WFS3 schema yaml to the current version made accessible by Radiant Earth.
+The `scripts` directory currently contains only one file: `yamlUpdater.js`. This script is ran automatically during the build process, and is intended to update the STAC and WFS3 schema yaml to the current version made accessible by Radiant Earth.
 
 When `yamlUpdater.js` is ran, it looks at the repositories listed below to get the latest version of STAC and WFS3 specification schemas. It then updates the current schema file `WFS3core+STAC.yaml` located in the `docs` directory.
+
+This process is used to ensure that this app is always using the most recent version of `STAC` it is highly recommended that after an update has happened that all of the test are ran to ensure nothing has broken. We also recommend that test are written for any new `STAC` specifications.
 
 STAC: https://github.com/radiantearth/stac-spec/blob/master/api-spec/STAC.yaml
 
