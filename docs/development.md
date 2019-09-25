@@ -25,7 +25,7 @@ This application is written in JavaScript running on NodeJS as AWS Lambda functi
 The `lib` directory contains the main logic of the application. It is broken down into modules pertaining to areas of responsibility. A summary of those modules can be found below.
 
 ### API
-The `api` directory houses the api routing logic for the application. This is achieved using `Express.js`. Also included in this directory are routes pertaining to STAC and WFS3 endpoints.
+The `api` directory houses the api routing logic for the application. Also included in this directory are routes pertaining to STAC and WFS3 endpoints.
 
 ### CMR
 Contains logic to query CMR, including searching for collections and granules, getting collections and granules, and building CMR search URLs.
@@ -54,4 +54,4 @@ STAC: https://github.com/radiantearth/stac-spec/blob/master/api-spec/STAC.yaml
 WFS3: https://github.com/radiantearth/stac-spec/blob/master/api-spec/openapi/WFS3.yaml
 
 ## Tests
-The `tests` directory is where all of the unit tests for the application are held. There is a directory for every corresponding subdirectory in the `lib` directory.  
+The `tests` directory is where all of the unit tests for the application are held. There is a directory for every corresponding subdirectory in the `lib` directory. We have not provided examples of how any of our modules work inside of this documentation, however, our test are written in a manner where you can see an example of how a function or module works.
