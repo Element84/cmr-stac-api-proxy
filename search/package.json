@@ -24,7 +24,7 @@
     "lint-staged": "^9.2.3",
     "redoc-cli": "^0.9.7",
     "serverless": "^1.49.0",
-    "serverless-offline": "^5.8.0"
+    "serverless-offline": "^12.0.3"
   },
   "scripts": {
     "start": "sls offline",
